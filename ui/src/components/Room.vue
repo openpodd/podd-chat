@@ -1,6 +1,6 @@
 <template>
   <div class="room">
-    <h1>Room {{ roomName }} {{ test }}</h1>
+    <h1>Room {{ roomName }}</h1>
     <ul>
       <li v-for="msg in messages">{{msg.message}} by {{msg.username}}</li>
     </ul>
@@ -10,11 +10,6 @@
 <script>
 export default {
   name: 'room',
-  data () {
-    return {
-      test: 'hi'
-    }
-  },
   computed: {
     roomName () {
       return this.$store.state.roomName

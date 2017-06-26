@@ -20,13 +20,8 @@ export default new Vuex.Store({
   state: {
     token: token,
     username: 'anonymous',
-    roomName: 'red room',
-    messages: [
-      {
-        message: 'พบไฟป่าที่ ต.ป่าซาง อ.บ้านนา',
-        username: 'pok user'
-      }
-    ]
+    roomName: '---',
+    messages: []
   },
   strict: debug,
   mutations: {
@@ -48,7 +43,7 @@ export default new Vuex.Store({
       db.ref('tokens').child(state.token).once('value').then(snapshot => {
         const userInfo = snapshot.val()
         commit('setUsername', userInfo.username)
-        return userInfo.room
+        return userInfo.roomId
       }).then((room) => {
         return db.ref('rooms').child(room).child('description').once('value').then(snapshot => {
           commit('setRoomName', snapshot.val())
