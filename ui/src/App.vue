@@ -2,15 +2,19 @@
   <div id="app">
     <p>hello {{ username }} with token {{ token }}</p>
     <room></room>
+    <post></post>
   </div>
 </template>
 
 <script>
 import Room from './components/Room'
+import Post from './components/Post'
+
 export default {
   name: 'app',
   components: {
-    Room
+    Room,
+    Post
   },
   computed: {
     username: function () {

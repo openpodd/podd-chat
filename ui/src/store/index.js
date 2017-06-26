@@ -21,6 +21,7 @@ export default new Vuex.Store({
     token: token,
     username: 'anonymous',
     roomName: '---',
+    roomtId: '',
     messages: []
   },
   strict: debug,
@@ -30,6 +31,9 @@ export default new Vuex.Store({
     },
     setRoomName: (state, name) => {
       state.roomName = name
+    },
+    setRoomId: (state, roomId) => {
+      state.roomId = roomId
     },
     addMessage: (state, { username, message }) => {
       state.messages.push({
@@ -44,11 +48,12 @@ export default new Vuex.Store({
         const userInfo = snapshot.val()
         commit('setUsername', userInfo.username)
         return userInfo.roomId
-      }).then((room) => {
-        return db.ref('rooms').child(room).child('description').once('value').then(snapshot => {
+      }).then((roomId) => {
+        return db.ref('rooms').child(roomId).child('description').once('value').then(snapshot => {
           commit('setRoomName', snapshot.val())
+          commit('setRoomId', roomId)
         }).then(() => {
-          return db.ref('messages').child(room).on('child_added', msgSnapshot => {
+          return db.ref('messages').child(roomId).on('child_added', msgSnapshot => {
             const msg = msgSnapshot.val()
             commit('addMessage', {
               username: msg.username,
@@ -56,6 +61,14 @@ export default new Vuex.Store({
             })
           })
         })
+      })
+    },
+    postMessage: ({commit, state}, message) => {
+      const ref = db.ref('messages').child(state.roomId).push()
+      return ref.set({
+        message: message,
+        username: state.username,
+        ts: new Date().getTime()
       })
     }
   }
