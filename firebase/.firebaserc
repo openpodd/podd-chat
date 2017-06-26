@@ -1,1 +1,5 @@
-{}
+{
+  "projects": {
+    "podd-chat": "podd-chat"
+  }
+}
