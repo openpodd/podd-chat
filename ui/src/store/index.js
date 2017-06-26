@@ -63,7 +63,7 @@ export default new Vuex.Store({
         })
       })
     },
-    postMessage: ({commit, state}, message) => {
+    postMessage: ({state}, message) => {
       const ref = db.ref('messages').child(state.roomId).push()
       return ref.set({
         message: message,
