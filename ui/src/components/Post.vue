@@ -2,7 +2,7 @@
   <div class="post">
     <form class="chat-form" @submit.prevent="post()">
       <input type="text" class="chat-form__input" v-model="message"></input>
-      <button class="chat-form__submit" type="submit">ส่ง</button>
+      <button class="chat-form__submit" type="submit" :disabled="isEmpty()">ส่ง</button>
     </form>
   </div>
 </template>
@@ -16,9 +16,20 @@ export default {
     }
   },
   methods: {
-    post () {
-      this.$store.dispatch('postMessage', this.message)
+    async post () {
+      await this.$store.dispatch('postMessage', this.message)
       this.message = ''
+
+      let body = document.getElementsByTagName('body')[0]
+      window.scrollTo(0, body.scrollHeight)
+    },
+    isEmpty () {
+      return this.message.trim().length === 0
+    }
+  },
+  events: {
+    newMessage () {
+
     }
   }
 }
@@ -56,6 +67,11 @@ export default {
     border: none;
     color: #fff;
     background-color: #11ad51;
+    font-size: 16px;
+
+    &[disabled] {
+      opacity: .7;
+    }
   }
 }
 </style>
