@@ -1,7 +1,9 @@
 <template>
-  <div>
-    <input type="text" v-model="message"/>
-    <button @click="post()">Post</button>
+  <div class="post">
+    <form class="chat-form">
+      <textarea class="chat-form__input" v-model="message"></textarea>
+      <button class="chat-form__submit" type="submit" @click="post()">ส่ง</button>
+    </form>
   </div>
 </template>
 
@@ -15,9 +17,44 @@ export default {
   },
   methods: {
     post () {
-      console.log('post ', this.message)
       this.$store.dispatch('postMessage', this.message)
     }
   }
 }
 </script>
+
+<style lang="less">
+.post {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  padding: .75em;
+  background-color: #fff;
+  box-shadow: -1px 0 5px #ccc;
+}
+
+.chat-form {
+  width: 100%;
+  height: 100%;
+
+  &__input {
+    float: left;
+    width: 85%;
+    height: 100%;
+    padding: 4px;
+    border: none;
+    // border-radius: .25rem;
+    box-shadow: 0 0 2px #dcdcdc inset;
+    background-color: #eee;
+  }
+  &__submit {
+    width: 15%;
+    height: 100%;
+    border: none;
+    color: #fff;
+    background-color: #11ad51;
+  }
+}
+</style>
