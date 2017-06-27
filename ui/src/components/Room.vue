@@ -224,6 +224,7 @@ export default {
     word-wrap: break-word;
     color: rgba(0,0,0,.87);
     line-height: 1.3;
+    user-select: text;
   }
 }
 </style>
