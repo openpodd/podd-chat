@@ -6,13 +6,14 @@
     <div class="chat-log">
       <div class="messages">
         <div class="message" v-for="msg in messages">
-          <a class="message__avatar">
-            <img class="message__avatar_image" src="https://api.adorable.io/avatars/35/fufu.png">
+          <a class="message__avatar" :class="{'message__avatar_sender': isMine(msg) }">
+            <img v-if="!hasAvatar(msg)" class="message__avatar_image" :src="`https://api.adorable.io/avatars/35/${ msg.username }}@podd.png`">
+            <img v-if="hasAvatar(msg)" class="message__avatar_image" :src="`${ apiUrl }/users/${ msg.userId }/profile_image/`">
           </a>
-          <div class="message__content">
+          <div class="message__content" :class="{'message__content_sender': isMine(msg) }">
             <a class="message__author">{{msg.username}}</a>
             <div class="message__metadata">
-              <span class="message__date">เมื่อเวลา 12:30 AM</span>
+              <span class="message__date">เมื่อ {{ msg.ts | moment("from") }}</span>
             </div>
             <div class="message__text">
               {{msg.message}}
@@ -27,7 +28,18 @@
 <script>
 export default {
   name: 'room',
+  methods: {
+    hasAvatar (message) {
+      return message.userId && message.userId !== 0 && message.userId !== '0'
+    },
+    isMine (message) {
+      return message.username === this.$store.state.username || message.userId === this.$store.state.userId
+    }
+  },
   computed: {
+    apiUrl () {
+      return this.$store.state.apiUrl
+    },
     roomName () {
       return this.$store.state.roomName
     },

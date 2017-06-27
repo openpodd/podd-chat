@@ -59,6 +59,7 @@ exports.createRoom = functions.https.onRequest((req, res) => {
   const roomId = req.query.roomId
   const roomName = req.query.roomName
   const welcomeMessage = req.query.welcomeMessage
+  const userId = req.query.userId
   const username = req.query.username
   const secretKey = getSecretKey(req)
   if (secretKey !== functions.config().podd.secretkey) {
@@ -72,6 +73,7 @@ exports.createRoom = functions.https.onRequest((req, res) => {
   }).then(() => {
     const ref = db.ref('messages').child(roomId).push()
     return ref.set({
+      userId: userId,
       message: welcomeMessage,
       username: username,
       ts: now

@@ -1,8 +1,8 @@
 <template>
   <div class="post">
-    <form class="chat-form">
-      <textarea class="chat-form__input" v-model="message"></textarea>
-      <button class="chat-form__submit" type="submit" @click="post()">ส่ง</button>
+    <form class="chat-form" @submit.prevent="post()">
+      <input type="text" class="chat-form__input" v-model="message"></input>
+      <button class="chat-form__submit" type="submit">ส่ง</button>
     </form>
   </div>
 </template>
@@ -18,6 +18,7 @@ export default {
   methods: {
     post () {
       this.$store.dispatch('postMessage', this.message)
+      this.message = ''
     }
   }
 }

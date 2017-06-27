@@ -4,6 +4,13 @@ import Vue from 'vue'
 import App from './App'
 import store from './store'
 
+const moment = require('moment')
+require('moment/locale/th')
+
+Vue.use(require('vue-moment'), {
+  moment
+})
+
 import './main.less'
 
 Vue.config.productionTip = false

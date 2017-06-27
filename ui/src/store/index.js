@@ -8,7 +8,7 @@ import config from './config.js'
 
 const firebase = require('firebase')
 
-firebase.initializeApp(config)
+firebase.initializeApp(config.firebase)
 const db = firebase.database()
 
 Vue.use(Vuex)
@@ -21,11 +21,15 @@ export default new Vuex.Store({
     token: token,
     username: 'anonymous',
     roomName: '---',
-    roomtId: '',
-    messages: []
+    roomId: '',
+    messages: [],
+    apiUrl: config.apiUrl
   },
   strict: debug,
   mutations: {
+    setUserId: (state, userId) => {
+      state.userId = userId
+    },
     setUsername: (state, username) => {
       state.username = username
     },
@@ -35,10 +39,12 @@ export default new Vuex.Store({
     setRoomId: (state, roomId) => {
       state.roomId = roomId
     },
-    addMessage: (state, { username, message }) => {
+    addMessage: (state, { userId, username, message, ts }) => {
       state.messages.push({
+        userId: userId,
         username: username,
-        message: message
+        message: message,
+        ts: ts
       })
     }
   },
@@ -47,6 +53,7 @@ export default new Vuex.Store({
       db.ref('tokens').child(state.token).once('value').then(snapshot => {
         const userInfo = snapshot.val()
         commit('setUsername', userInfo.username)
+        commit('setUserId', userInfo.userId)
         return userInfo.roomId
       }).then((roomId) => {
         return db.ref('rooms').child(roomId).child('description').once('value').then(snapshot => {
@@ -56,8 +63,10 @@ export default new Vuex.Store({
           return db.ref('messages').child(roomId).on('child_added', msgSnapshot => {
             const msg = msgSnapshot.val()
             commit('addMessage', {
+              userId: msg.userId,
               username: msg.username,
-              message: msg.message
+              message: msg.message,
+              ts: new Date(msg.ts)
             })
           })
         })
@@ -67,6 +76,7 @@ export default new Vuex.Store({
       const ref = db.ref('messages').child(state.roomId).push()
       return ref.set({
         message: message,
+        userId: state.userId,
         username: state.username,
         ts: new Date().getTime()
       })
