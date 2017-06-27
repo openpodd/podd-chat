@@ -1,7 +1,7 @@
 <template>
   <div class="post">
     <form class="chat-form" @submit.prevent="post()">
-      <input type="text" class="chat-form__input" v-model="message"></input>
+      <input type="text" class="chat-form__input" v-model="message" @focus="focus()" @click="focus()"></input>
       <button class="chat-form__submit" type="submit" :disabled="isEmpty()">ส่ง</button>
     </form>
   </div>
@@ -16,20 +16,22 @@ export default {
     }
   },
   methods: {
-    async post () {
-      await this.$store.dispatch('postMessage', this.message)
-      this.message = ''
-
+    scrollBottom () {
       let body = document.getElementsByTagName('body')[0]
       window.scrollTo(0, body.scrollHeight)
     },
+    async post () {
+      await this.$store.dispatch('postMessage', this.message)
+      this.message = ''
+      this.scrollBottom()
+    },
     isEmpty () {
       return this.message.trim().length === 0
-    }
-  },
-  events: {
-    newMessage () {
-
+    },
+    focus () {
+      setTimeout(() => {
+        this.scrollBottom()
+      }, 500)
     }
   }
 }
