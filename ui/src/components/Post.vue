@@ -59,6 +59,7 @@ export default {
     height: 100%;
     padding: 4px;
     border: none;
+    font-size: 1em;
     // border-radius: .25rem;
     box-shadow: 0 0 2px #dcdcdc inset;
     background-color: #eee;
