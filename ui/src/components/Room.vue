@@ -66,8 +66,9 @@ export default {
       this.willScrollBottom = false
     },
     onScroll (ev) {
-      let body = document.getElementsByTagName('body')[0]
-      if (this.notifyNewMessage && (body.scrollTop + window.outerHeight) === body.scrollHeight) {
+      let el = document.scrollingElement
+      console.log(el.scrollTop + window.innerHeight, el.scrollHeight)
+      if (this.notifyNewMessage && (el.scrollTop + window.innerHeight) === el.scrollHeight) {
         this.notifyNewMessage = false
       }
     }
@@ -93,10 +94,10 @@ export default {
   watch: {
     messages (val) {
       if (val[val.length - 1].userId !== this.$store.state.userId) {
-        let body = document.getElementsByTagName('body')[0]
-        if (body.scrollTop + window.outerHeight === body.scrollHeight) {
+        let el = document.scrollingElement
+        if ((el.scrollTop + window.innerHeight) === el.scrollHeight && el.scrollHeight >= window.outerHeight) {
           this.willScrollBottom = true
-        } else {
+        } else if (el.scrollHeight >= window.innerHeight) {
           this.notifyNewMessage = true
         }
       }
