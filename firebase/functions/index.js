@@ -59,6 +59,7 @@ exports.postMessage = functions.https.onRequest((req, res) => {
   const roomId = req.body.roomId
   const message = req.body.message
   const username = req.body.username
+  const userId = req.body.userId
   const imageUrl = req.body.imageUrl
   const secretKey = getSecretKey(req)
   if (secretKey !== functions.config().podd.secretkey) {
@@ -71,7 +72,8 @@ exports.postMessage = functions.https.onRequest((req, res) => {
   const msgObject = {
     message: message,
     ts: now,
-    username: username
+    username: username,
+    userId: userId
   }
   if (imageUrl) {
     msgObject.imageUrl = imageUrl
