@@ -44,6 +44,44 @@ exports.createToken = functions.https.onRequest((req, res) => {
   })
 })
 
+exports.postMessage = functions.https.onRequest((req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.set('Access-Control-Allow-Methods', 'POST').status(200)
+    return
+  }
+
+  if (req.method !== 'POST') {
+    res.status(405).send('Method Not Allowed')
+    return
+  }
+
+  const now = new Date().getTime()
+  const roomId = req.body.roomId
+  const message = req.body.message
+  const username = req.body.username
+  const imageUrl = req.body.imageUrl
+  const secretKey = getSecretKey(req)
+  if (secretKey !== functions.config().podd.secretkey) {
+    res.status(401).send('Unauthorized')
+    return
+  }
+
+  const db = admin.database()
+  const ref = db.ref('messages').child(roomId).push()
+  const msgObject = {
+    message: message,
+    ts: now,
+    username: username
+  }
+  if (imageUrl) {
+    msgObject.imageUrl = imageUrl
+  }
+
+  return ref.set(msgObject).then(() => {
+    res.send('{"success": true}').status(200)
+  })
+})
+
 exports.createRoom = functions.https.onRequest((req, res) => {
   if (req.method === 'OPTIONS') {
     res.set('Access-Control-Allow-Methods', 'POST').status(200)
