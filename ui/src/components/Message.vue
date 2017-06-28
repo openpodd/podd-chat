@@ -7,8 +7,16 @@
       <div class="message__metadata">
         <span class="message__date">เมื่อ {{ message.ts | moment("from") }}</span>
       </div>
-      <div class="message__text">
-        {{message.message}}
+      <div class="message__text" v-html="parsedMessage">
+      </div>
+      <div class="message__map" v-if="containsLocation">
+        <gmap-map
+          :center="messageLocation"
+          :zoom="12"
+          map-type-id="terrain"
+          style="width: 100%; height: 300px">
+          <gmap-marker :position="messageLocation"></gmap-marker>
+        </gmap-map>
       </div>
     </div>
   </div>
@@ -26,6 +34,20 @@ export default {
   computed: {
     isMine () {
       return this.message.username === this.$store.state.username || this.message.userId === this.$store.state.userId
+    },
+    parsedMessage () {
+      return this.message.message.replace(/(https?:\/\/www.cmonehealth.org\/\b([-a-zA-Z0-9@:%_+.~#?&//=]*))/g, '<a target="_blank" href="$1">$1</a>')
+    },
+    containsLocation () {
+      return this.message.message.match(/พิกัด\s+[0-9.]+,\s+[0-9.]+/)
+    },
+    messageLocation () {
+      let latLng = this.message.message.match(/พิกัด\s+([0-9.]+),\s+([0-9.]+)/)
+      console.log(latLng)
+      return {
+        lat: parseFloat(latLng[1]),
+        lng: parseFloat(latLng[2])
+      }
     }
   }
 }
@@ -91,6 +113,11 @@ export default {
       color: rgba(0,0,0,.87);
       line-height: 1.3;
       user-select: text;
+
+      img {
+        margin: 8px 0;
+        width: 100%;
+      }
     }
   }
 </style>

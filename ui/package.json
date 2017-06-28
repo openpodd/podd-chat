@@ -15,6 +15,7 @@
     "moment": "^2.18.1",
     "vue": "^2.3.4",
     "vue-moment": "^2.0.2",
+    "vue2-google-maps": "^0.7.9",
     "vuefire": "^1.4.3",
     "vuex": "^2.3.1"
   },

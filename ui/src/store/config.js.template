@@ -7,7 +7,8 @@ const config = {
     storageBucket: '',
     messagingSenderId: '11111111111'
   },
-  apiUrl: 'https://api.cmonehealth.org'
+  apiUrl: 'https://api.cmonehealth.org',
+  googleMapApiKey: 'YOUR_API_KEY'
 }
 
 export default config

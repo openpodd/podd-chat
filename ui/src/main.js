@@ -3,12 +3,20 @@
 import Vue from 'vue'
 import App from './App'
 import store from './store'
+import * as VueGoogleMaps from 'vue2-google-maps'
+import config from './store/config'
 
 const moment = require('moment')
 require('moment/locale/th')
 
 Vue.use(require('vue-moment'), {
   moment
+})
+
+Vue.use(VueGoogleMaps, {
+  load: {
+    key: config.googleMapApiKey
+  }
 })
 
 import './main.less'
