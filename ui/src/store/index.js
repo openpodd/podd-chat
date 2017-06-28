@@ -63,6 +63,7 @@ export default new Vuex.Store({
           return db.ref('messages').child(roomId).on('child_added', msgSnapshot => {
             const msg = msgSnapshot.val()
             commit('addMessage', {
+              id: msgSnapshot.ref.key,
               userId: msg.userId,
               username: msg.username,
               message: msg.message,
