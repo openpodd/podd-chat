@@ -65,7 +65,7 @@ export default {
     },
     userAvatar: function () {
       let userId = this.$store.state.userId
-      return (userId && userId !== '0') ? `${this.apiUrl}/users/${userId}/profile_image/` : `https://api.adorable.io/avatars/35/${this.$store.state.username}@podd.png`
+      return (userId && userId !== '0') ? `${this.$store.state.apiUrl}/users/${userId}/profile_image/` : `https://api.adorable.io/avatars/35/${this.$store.state.username}@podd.png`
     },
     username: function () {
       return this.$store.state.username

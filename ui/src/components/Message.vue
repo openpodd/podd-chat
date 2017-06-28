@@ -25,7 +25,7 @@ export default {
   },
   computed: {
     isMine () {
-      return this.message.userId && this.message.userId !== 0 && this.message.userId !== '0'
+      return this.message.username === this.$store.state.username || this.message.userId === this.$store.state.userId
     }
   }
 }
