@@ -89,8 +89,12 @@ export default {
 </script>
 
 <style lang="less">
+.room {
+  height: 100%;
+}
+
 .chat-header {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
@@ -129,7 +133,7 @@ export default {
 
 
 .new_message {
-  position: fixed;
+  position: absolute;
   bottom: 70px;
   left: 50%;
   border-radius: 3em;
@@ -146,6 +150,8 @@ export default {
 .chat-log {
   padding-top: 60px;
   padding-bottom: 70px;
+  overflow: auto;
+  height: 100%;
 }
 
 </style>

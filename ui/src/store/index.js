@@ -42,10 +42,35 @@ export default new Vuex.Store({
     },
     addMessage: (state, message) => {
       state.messages.push(message)
+    },
+    setToken: (state, token) => {
+      state.token = token
     }
   },
   actions: {
-    init: ({commit, state}) => {
+    setToken: ({commit, state}, token) => {
+      commit('setToken', token)
+    },
+    createToken: ({commit, state}, payload) => {
+      const ref = db.ref('tokens').push()
+      return new Promise((resolve, reject) => {
+        ref
+          .set({
+            roomId: payload.roomId,
+            userId: '340',
+            username: 'noomz',
+            ts: (new Date()).getTime()
+          })
+          .then(() => {
+            resolve(ref)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
+    },
+    initChatRoom: ({commit, state}) => {
+      state.messages = []
       db.ref('tokens').child(state.token).once('value').then(snapshot => {
         const userInfo = snapshot.val()
         commit('setUsername', userInfo.username)
@@ -84,6 +109,41 @@ export default new Vuex.Store({
       const filename = 'images/img-' + Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9) + ext
       const ref = storage.ref().child(filename)
       return ref.put(file)
+    },
+    getChatRooms: () => {
+      return new Promise((resolve, reject) => {
+        db.ref('rooms').orderByKey().limitToLast(10).once('value')
+          .then(async snapshot => {
+            let rooms = []
+            snapshot.forEach(child => {
+              rooms.push({
+                id: child.key,
+                description: child.val().description
+              })
+            })
+
+            for (let i in rooms) {
+              let room = rooms[i]
+              let mSnapshot = await db.ref('messages').child(room.id).orderByKey().limitToFirst(1).once('value')
+              if (mSnapshot.val()) {
+                let item = null
+                mSnapshot.forEach(child => {
+                  item = child.val()
+                })
+                let latLng = item.message.match(/พิกัด\s+([0-9.]+),\s+([0-9.]+)/)
+                room.location = {
+                  lat: parseFloat(latLng[1]),
+                  lng: parseFloat(latLng[2])
+                }
+              }
+            }
+
+            resolve(rooms)
+          })
+          .catch(err => {
+            reject(err)
+          })
+      })
     }
   }
 })

@@ -89,7 +89,6 @@ export default {
     },
     messageLocation () {
       let latLng = this.message.message.match(/พิกัด\s+([0-9.]+),\s+([0-9.]+)/)
-      console.log(latLng)
       return {
         lat: parseFloat(latLng[1]),
         lng: parseFloat(latLng[2])
