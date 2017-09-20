@@ -10,6 +10,10 @@
     <div class="action-modal" v-if="actionModalVisible">
       <div class="-backdrop" @click="hideActions()"></div>
       <ul class="actions-list">
+        <li class="action-item">
+          อัพโหลดรูป
+          <input type="file" @change="uploadImage">
+        </li>
         <li class="action-item" @click="showAction('commitAreaOperation')">ลงพื้นที่</li>
         <li class="action-item" @click="showAction('requestSupport')">ขอการสนับสนุน</li>
         <li class="action-item" @click="showAction('invite')">เชิญบุคคลอื่นเข้าร่วม</li>
@@ -100,6 +104,23 @@ export default {
       this.hideAction('invite')
       this.hideAction('finishCase')
       this.hideActions()
+    },
+    uploadImage ($event) {
+      if ($event.target.files.length > 0) {
+        this.$store.dispatch('uploadImage', $event.target.files[0])
+          .then(resp => {
+            this.$store.dispatch('postMessage', {
+              image_url: resp.metadata.downloadURLs[0]
+            })
+          })
+          .catch(err => {
+            console.log(err)
+            this.$modal.show({
+              title: 'ผิดพลาด',
+              text: 'กรุณาลองใหม่อีกครั้ง'
+            })
+          })
+      }
     }
   }
 }
@@ -178,10 +199,21 @@ export default {
       cursor: pointer;
       border-bottom: 1px solid #eee;
       background-color: #fff;
+      position: relative;
 
       &:hover {
         background-color: #ffa100;
         color: #fff;
+      }
+
+      input[type=file] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        opacity: .0001;
+        cursor: pointer;
       }
     }
   }

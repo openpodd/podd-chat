@@ -2,6 +2,8 @@
   <div id="app">
     <room></room>
     <post></post>
+
+    <vue-modal ref="modal"></vue-modal>
   </div>
 </template>
 
@@ -9,11 +11,15 @@
 import Room from './components/Room'
 import Post from './components/Post'
 
+import Vue from 'vue'
+import VueModal from './Modal'
+
 export default {
   name: 'app',
   components: {
     Room,
-    Post
+    Post,
+    VueModal
   },
   computed: {
     username: function () {
@@ -26,6 +32,9 @@ export default {
   created: function () {
     console.log('get username from firebase')
     this.$store.dispatch('init')
+  },
+  mounted () {
+    Vue.prototype.$modal = this.$refs.modal
   }
 }
 </script>

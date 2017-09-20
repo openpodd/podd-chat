@@ -10,6 +10,7 @@ const firebase = require('firebase')
 
 firebase.initializeApp(config.firebase)
 const db = firebase.database()
+const storage = firebase.storage()
 
 Vue.use(Vuex)
 
@@ -77,6 +78,12 @@ export default new Vuex.Store({
       }, payload)
 
       return ref.set(message)
+    },
+    uploadImage ({state}, file) {
+      const ext = file.name.replace(/.*(\.[a-zA-Z]+)$/, '$1')
+      const filename = 'images/img-' + Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9) + ext
+      const ref = storage.ref().child(filename)
+      return ref.put(file)
     }
   }
 })

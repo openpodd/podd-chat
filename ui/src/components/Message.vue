@@ -9,6 +9,9 @@
       </div>
       <div class="message__text" v-html="parsedMessage">
       </div>
+      <div class="message__image">
+        <img :src="message.image_url">
+      </div>
       <div class="message__map" v-if="containsLocation">
         <gmap-map
           :center="messageLocation"
@@ -155,6 +158,12 @@ export default {
         border-radius: 4px;
         background-color: #ffa100;
       }
+    }
+  }
+
+  .message__image {
+    img {
+      width: 100%;
     }
   }
 
