@@ -44,6 +44,11 @@
           <div><span class="-label">Action</span> ดับไฟเสร็จสิ้น</div>
           <img class="sticker" src="../assets/amita_yeah.png">
         </div>
+
+        <div v-if="message.actionType == 'updateSituation'">
+          <div><span class="-label">Action</span> อัพเดตสถานการณ์</div>
+          ความรุนแรง: <span class="severity" :class="`severity-${message.severity}`">{{ getSeverityLabel(message.severity) }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -52,11 +57,22 @@
 <script>
 import Avatar from './Avatar'
 
+const SEVERITY_TEXTS = {
+  low: 'ไฟไม่รุนแรง',
+  high: 'เริ่มเข้าสู่ช่วงวิกฤต',
+  danger: 'เข้าขั้นวิกฤติ อันตราย'
+}
+
 export default {
   name: 'message',
   props: ['message'],
   components: {
     Avatar
+  },
+  methods: {
+    getSeverityLabel (key) {
+      return SEVERITY_TEXTS[key]
+    }
   },
   computed: {
     isMine () {
@@ -158,6 +174,22 @@ export default {
         border-radius: 4px;
         background-color: #ffa100;
       }
+    }
+  }
+
+  .severity {
+    font-style: italic;
+
+    &-low {
+      border-bottom: 2px solid #d6d806;
+    }
+
+    &-high {
+      border-bottom: 2px solid #ff9d00;
+    }
+
+    &-danger {
+      border-bottom: 2px solid #d80580;
     }
   }
 

@@ -18,6 +18,7 @@
         <li class="action-item" @click="showAction('requestSupport')">ขอการสนับสนุน</li>
         <li class="action-item" @click="showAction('invite')">เชิญบุคคลอื่นเข้าร่วม</li>
         <li class="action-item" @click="showAction('finishCase')">ดับไฟเสร็จสิ้น</li>
+        <li class="action-item" @click="showAction('updateSituation')">อัพเดตสถานการณ์</li>
       </ul>
     </div>
 
@@ -36,6 +37,10 @@
     <modal v-if="modalVisibility.finishCase" title="ดับไฟเสร็จสิ้น" @modalClose="hideAction('finishCase')">
       <finish-case-form @actionDone="onActionDone()" @actionCancel="hideAction('finishCase')"></finish-case-form>
     </modal>
+
+    <modal v-if="modalVisibility.updateSituation" title="อัพเดตสถานการณ์" @modalClose="hideAction('updateSituation')">
+      <update-situation-form @actionDone="onActionDone()" @actionCancel="hideAction('updateSituation')"></update-situation-form>
+    </modal>
   </div>
 </template>
 
@@ -44,10 +49,12 @@ import Modal from './Modal.vue'
 import CommitAreaOperationForm from './actions/CommitAreaOperationForm.vue'
 import RequestSupportForm from './actions/RequestSupportForm.vue'
 import FinishCaseForm from './actions/FinishCaseForm.vue'
+import UpdateSituationForm from './actions/UpdateSituationForm.vue'
 
 export default {
   name: 'post',
   components: {
+    UpdateSituationForm,
     FinishCaseForm,
     RequestSupportForm,
     CommitAreaOperationForm,
@@ -61,7 +68,8 @@ export default {
         commitAreaOperation: false,
         requestSupport: false,
         invite: false,
-        finishCase: false
+        finishCase: false,
+        updateSituation: false
       }
     }
   },
@@ -103,12 +111,16 @@ export default {
       this.hideAction('requestSupport')
       this.hideAction('invite')
       this.hideAction('finishCase')
+      this.hideAction('updateSituation')
       this.hideActions()
+
+      this.scrollBottom()
     },
     uploadImage ($event) {
       if ($event.target.files.length > 0) {
         this.$store.dispatch('uploadImage', $event.target.files[0])
           .then(resp => {
+            this.onActionDone()
             this.$store.dispatch('postMessage', {
               image_url: resp.metadata.downloadURLs[0]
             })
