@@ -18,6 +18,30 @@
           <gmap-marker :position="messageLocation"></gmap-marker>
         </gmap-map>
       </div>
+      <div class="message__action" v-if="isAction">
+        <div v-if="message.actionType == 'commitAreaOperation'">
+          <span class="-label">Action</span> ยืนยันการลงพื้นที่ของหน่วยงาน <span class="variable">{{ message.department }}</span>
+          <img class="sticker" src="../assets/amita_ok.png">
+        </div>
+
+        <div v-if="message.actionType == 'requestSupport'">
+          <div><span class="-label">Action</span> ขอความช่วยเหลือ</div>
+          <ul class="-resources-list">
+            <li v-if="message.resources.food">เสบียงอาหาร</li>
+            <li v-if="message.resources.crews">กำลังคน</li>
+            <li v-if="message.resources.equipments">อุปกรณ์</li>
+          </ul>
+          <div class="-others" v-if="message.others">
+            <strong>เพิ่มเติม:</strong> {{ message.others }}
+          </div>
+          <img class="sticker" src="../assets/amita_cry.png">
+        </div>
+
+        <div v-if="message.actionType == 'finishCase'">
+          <div><span class="-label">Action</span> ดับไฟเสร็จสิ้น</div>
+          <img class="sticker" src="../assets/amita_yeah.png">
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -37,6 +61,9 @@ export default {
     },
     parsedMessage () {
       return this.message.message.replace(/(https?:\/\/www.cmonehealth.org\/\b([-a-zA-Z0-9@:%_+.~#?&//=]*))/g, '<a target="_blank" href="$1">$1</a>')
+    },
+    isAction () {
+      return this.message.type === 'action'
     },
     containsLocation () {
       return this.message.message.match(/พิกัด\s+[0-9.]+,\s+[0-9.]+/)
@@ -119,5 +146,27 @@ export default {
         width: 100%;
       }
     }
+
+    &__action {
+      .-label {
+        font-style: italic;
+        color: #fff;
+        padding: 0 6px;
+        border-radius: 4px;
+        background-color: #ffa100;
+      }
+    }
+  }
+
+  .variable {
+    /*font-size: 0.87em;*/
+    font-style: italic;
+    /*background-color: #eee;*/
+    border-bottom: 1px solid #ccc;
+    padding: 0 6px;
+  }
+
+  img.sticker {
+    max-width: 100%;
   }
 </style>

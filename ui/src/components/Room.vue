@@ -52,7 +52,6 @@ export default {
     },
     onScroll (ev) {
       let el = document.scrollingElement
-      console.log(el.scrollTop + window.innerHeight, el.scrollHeight)
       if (this.notifyNewMessage && (el.scrollTop + window.innerHeight) === el.scrollHeight) {
         this.notifyNewMessage = false
       }

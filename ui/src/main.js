@@ -19,7 +19,10 @@ Vue.use(VueGoogleMaps, {
   }
 })
 
+import validator from './validator'
 import './main.less'
+
+Vue.use(validator)
 
 Vue.config.productionTip = false
 
