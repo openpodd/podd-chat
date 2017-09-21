@@ -2,15 +2,19 @@
   <div class="ecc-dashboard">
     <div class="-left">
       <gmap-map
+        ref="map"
         :center="{ lat: 13.736717, lng: 100.523186 }"
-        :zoom="10"
+        :zoom="12"
         map-type-id="terrain"
         style="width: 100%; height: 100%">
-        <gmap-marker v-for="room in chatrooms" :position="room.location" @click="markerClick(room)"></gmap-marker>
+        <gmap-marker v-for="room in chatrooms" :position="room.meta.location" @click="markerClick(room)"></gmap-marker>
       </gmap-map>
     </div>
     <div class="-right">
       <chat-room v-if="currentChatroom" :fixed="false"></chat-room>
+      <div class="member-list">
+
+      </div>
     </div>
   </div>
 </template>
@@ -30,14 +34,30 @@ export default {
   created () {
     this.$store.dispatch('getChatRooms')
       .then(rooms => {
-        this.chatrooms = rooms
+        this.chatrooms = rooms.filter(item => item.meta)
+        setTimeout(() => {
+          window.requestAnimationFrame(() => {
+            let bounds = new window.google.maps.LatLngBounds()
+            for (let room of this.chatrooms) {
+              bounds.extend(room.meta.location)
+            }
+            this.$refs.map.fitBounds(bounds)
+          })
+        }, 100)
       })
   },
   methods: {
     markerClick (room) {
       this.currentChatroom = null
-      this.$store.dispatch('createToken', { roomId: room.id }).then(resp => {
-        this.$store.dispatch('setToken', resp.key).then(() => {
+
+      const payload = {
+        roomId: room.id,
+        userId: 340,
+        username: 'noomz'
+      }
+      this.$store.dispatch('createToken', payload).then(token => {
+        console.log('-> token', token)
+        this.$store.dispatch('setToken', token).then(() => {
           this.currentChatroom = room
         })
       })
@@ -65,5 +85,7 @@ export default {
 }
 .-right {
   width: 30%;
+  display: flex;
+  flex-direction: column;
 }
 </style>

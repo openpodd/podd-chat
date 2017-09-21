@@ -43,6 +43,9 @@ export default new Vuex.Store({
     addMessage: (state, message) => {
       state.messages.push(message)
     },
+    clearMessage: (state) => {
+      state.messages = []
+    },
     setToken: (state, token) => {
       state.token = token
     }
@@ -52,25 +55,52 @@ export default new Vuex.Store({
       commit('setToken', token)
     },
     createToken: ({commit, state}, payload) => {
-      const ref = db.ref('tokens').push()
       return new Promise((resolve, reject) => {
-        ref
-          .set({
-            roomId: payload.roomId,
-            userId: '340',
-            username: 'noomz',
-            ts: (new Date()).getTime()
-          })
-          .then(() => {
-            resolve(ref)
+        const roomId = payload.roomId.toString()
+        const userId = parseInt(payload.userId, 10) || 0
+        const username = payload.username
+
+        db.ref('tokens').orderByChild('roomId').equalTo(roomId).once('value')
+          .then(snapshot => {
+            let token = ''
+            snapshot.forEach(child => {
+              let item = child.val()
+              if (item.userId === userId || item.username === username) {
+                token = child.key
+              }
+            })
+
+            if (token !== '') {
+              resolve(token)
+            }
+
+            const ref = db.ref('tokens').push()
+            return ref.set({
+              roomId: roomId,
+              userId: userId,
+              username: username,
+              authorityId: parseInt(payload.authorityId, 10) || 0,
+              authorityName: payload.authorityName || '',
+              ts: (new Date()).getTime()
+            }).then(() => {
+              resolve(ref.key)
+              // add members to rooms
+              const newMemberRef = db.ref('rooms').child(roomId).child('members').push()
+              newMemberRef.set({
+                token: ref.key,
+                joined: false,
+                answered: false
+              })
+            })
           })
           .catch(err => {
+            console.log(err)
             reject(err)
           })
       })
     },
     initChatRoom: ({commit, state}) => {
-      state.messages = []
+      commit('clearMessage')
       db.ref('tokens').child(state.token).once('value').then(snapshot => {
         const userInfo = snapshot.val()
         commit('setUsername', userInfo.username)
@@ -116,27 +146,8 @@ export default new Vuex.Store({
           .then(async snapshot => {
             let rooms = []
             snapshot.forEach(child => {
-              rooms.push({
-                id: child.key,
-                description: child.val().description
-              })
+              rooms.push(Object.assign({ id: child.key }, child.val()))
             })
-
-            for (let i in rooms) {
-              let room = rooms[i]
-              let mSnapshot = await db.ref('messages').child(room.id).orderByKey().limitToFirst(1).once('value')
-              if (mSnapshot.val()) {
-                let item = null
-                mSnapshot.forEach(child => {
-                  item = child.val()
-                })
-                let latLng = item.message.match(/พิกัด\s+([0-9.]+),\s+([0-9.]+)/)
-                room.location = {
-                  lat: parseFloat(latLng[1]),
-                  lng: parseFloat(latLng[2])
-                }
-              }
-            }
 
             resolve(rooms)
           })
