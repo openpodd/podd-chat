@@ -18,6 +18,12 @@
 <script>
   export default {
     name: 'UpdateSituationForm',
+    props: {
+      tokenInfo: {
+        type: Object,
+        required: true
+      }
+    },
     data () {
       return {
         severity: ''
@@ -26,9 +32,14 @@
     methods: {
       async submit () {
         let payload = {
-          type: 'action',
-          actionType: 'updateSituation',
-          severity: this.severity
+          roomId: this.tokenInfo.roomId.toString(),
+          message: {
+            type: 'action',
+            actionType: 'updateSituation',
+            severity: this.severity,
+            userId: this.tokenInfo.userId,
+            username: this.tokenInfo.username
+          }
         }
         await this.$store.dispatch('postMessage', payload)
         this.$emit('actionDone')

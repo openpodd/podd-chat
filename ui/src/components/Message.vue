@@ -23,7 +23,7 @@
       </div>
       <div class="message__action" v-if="isAction">
         <div v-if="message.actionType == 'commitAreaOperation'">
-          <span class="-label">Action</span> ยืนยันการลงพื้นที่ของหน่วยงาน <span class="variable">{{ message.department }}</span>
+          <span class="-label">Action</span> ยืนยันการลงพื้นที่ของหน่วยงาน <span class="variable">{{ message.department }}</span> จำนวน <strong>{{ message.crewsNumber }}</strong> คน
           <img class="sticker" src="../assets/amita_ok.png">
         </div>
 
@@ -31,7 +31,7 @@
           <div><span class="-label">Action</span> ขอความช่วยเหลือ</div>
           <ul class="-resources-list">
             <li v-if="message.resources.food">เสบียงอาหาร</li>
-            <li v-if="message.resources.crews">กำลังคน</li>
+            <li v-if="message.resources.crews">กำลังคน จำนวน <strong>{{ message.resources.crewsNumber }}</strong> คน</li>
             <li v-if="message.resources.equipments">อุปกรณ์</li>
           </ul>
           <div class="-others" v-if="message.others">
@@ -76,7 +76,7 @@ export default {
   },
   computed: {
     isMine () {
-      return this.message.username === this.$store.state.username || this.message.userId === this.$store.state.userId
+      return this.message.username === this.$store.state.user.username || this.message.userId === this.$store.state.user.id
     },
     parsedMessage () {
       return this.message.message.replace(/(https?:\/\/www.cmonehealth.org\/\b([-a-zA-Z0-9@:%_+.~#?&//=]*))/g, '<a target="_blank" href="$1">$1</a>')

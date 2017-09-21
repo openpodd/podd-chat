@@ -5,7 +5,11 @@
       <label><input type="checkbox" v-model="resources.food"> เสบียงอาหาร</label>
     </div>
     <div>
-      <label><input type="checkbox" v-model="resources.crews"> กำลังพล</label>
+      <label>
+        <input type="checkbox" v-model="resources.crews">
+        กำลังพล
+        จำนวน <input type="number" v-model="resources.crewsNumber"> คน
+      </label>
     </div>
     <div>
       <label><input type="checkbox" v-model="resources.equipments"> อุปกรณ์</label>
@@ -24,11 +28,18 @@
 <script>
   export default {
     name: 'RequestSupportForm',
+    props: {
+      tokenInfo: {
+        type: Object,
+        required: true
+      }
+    },
     data () {
       return {
         resources: {
           food: false,
           crews: false,
+          crewsNumber: 0,
           equipments: false
         },
         others: ''
@@ -37,10 +48,15 @@
     methods: {
       async submit () {
         let payload = {
-          type: 'action',
-          actionType: 'requestSupport',
-          resources: this.resources,
-          others: this.others
+          roomId: this.tokenInfo.roomId.toString(),
+          message: {
+            type: 'action',
+            actionType: 'requestSupport',
+            resources: this.resources,
+            others: this.others,
+            userId: this.tokenInfo.userId,
+            username: this.tokenInfo.username
+          }
         }
         await this.$store.dispatch('postMessage', payload)
         this.$emit('actionDone')

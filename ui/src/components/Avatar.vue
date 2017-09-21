@@ -13,7 +13,7 @@
     props: ['message'],
     computed: {
       isMine () {
-        return this.message.username === this.$store.state.username || this.message.userId === this.$store.state.userId
+        return this.message.username === this.$store.state.user.username || this.message.userId === this.$store.state.user.id
       },
       hasAvatar () {
         return this.message.userId && this.message.userId !== 0 && this.message.userId !== '0'

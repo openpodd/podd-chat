@@ -3,6 +3,12 @@
     <strong>หน่วยงานที่ลงพื้นที่</strong>
     <input type="text" v-model="department">
     <div class="alert --error" v-show="$v.$errors.department.empty">กรุณากรอกหน่วยงาน</div>
+
+    <div>
+      <strong>กำลังคน</strong>
+      <input type="number" v-model="crewsNumber"> คน
+    </div>
+
     <button class="btn" @click.prevent="submit()">ยืนยัน</button>
     <button class="btn btn-cancel" @click.prevent="cancel()">ยกเลิก</button>
   </div>
@@ -11,9 +17,21 @@
 <script>
 export default {
   name: 'CommitAreaOperationForm',
+  props: {
+    tokenInfo: {
+      type: Object,
+      required: true
+    },
+    initialDepartment: {
+      type: String,
+      required: false,
+      default: ''
+    }
+  },
   data () {
     return {
-      department: ''
+      department: this.initialDepartment,
+      crewsNumber: ''
     }
   },
   created () {
@@ -31,9 +49,15 @@ export default {
       }
 
       let payload = {
-        type: 'action',
-        actionType: 'commitAreaOperation',
-        department: this.department
+        roomId: this.tokenInfo.roomId.toString(),
+        message: {
+          type: 'action',
+          actionType: 'commitAreaOperation',
+          department: this.department,
+          crewsNumber: parseInt(this.crewsNumber, 10) || 0,
+          userId: this.tokenInfo.userId,
+          username: this.tokenInfo.username
+        }
       }
       await this.$store.dispatch('postMessage', payload)
       this.$emit('actionDone')
@@ -48,6 +72,10 @@ export default {
 <style lang="less" scoped>
 input[type=text] {
   width: 100%;
+}
+
+input[type=number] {
+  width: 80px;
 }
 
 .btn {

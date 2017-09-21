@@ -70,7 +70,6 @@ export default new Vuex.Store({
             if (token !== '') {
               resolve(token)
             }
-            console.log(payload)
 
             const ref = db.ref('tokens').push()
             return ref.set({

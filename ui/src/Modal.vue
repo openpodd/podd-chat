@@ -91,7 +91,6 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     max-width: none;
-    width: 100%;
     height: auto;
     padding: 20px;
     background-color: #fff;

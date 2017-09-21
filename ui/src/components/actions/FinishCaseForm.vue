@@ -9,6 +9,12 @@
 <script>
   export default {
     name: 'FinishCaseForm',
+    props: {
+      tokenInfo: {
+        type: Object,
+        required: true
+      }
+    },
     data () {
       return {
       }
@@ -16,8 +22,13 @@
     methods: {
       async submit () {
         let payload = {
-          type: 'action',
-          actionType: 'finishCase'
+          roomId: this.tokenInfo.roomId.toString(),
+          message: {
+            type: 'action',
+            actionType: 'finishCase',
+            userId: this.tokenInfo.userId,
+            username: this.tokenInfo.username
+          }
         }
         await this.$store.dispatch('postMessage', payload)
         this.$emit('actionDone')

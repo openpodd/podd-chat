@@ -23,11 +23,18 @@
     </div>
 
     <modal v-if="modalVisibility.commitAreaOperation" title="ยืนยันการลงพื้นที่" @modalClose="hideAction('commitAreaOperation')">
-      <commit-area-operation-form @actionDone="onActionDone()" @actionCancel="hideAction('commitAreaOperation')"></commit-area-operation-form>
+      <commit-area-operation-form
+        :tokenInfo="tokenInfo"
+        :initialDepartment="department"
+        @actionDone="onActionDone()"
+        @actionCancel="hideAction('commitAreaOperation')"></commit-area-operation-form>
     </modal>
 
     <modal v-if="modalVisibility.requestSupport" title="ขอการสนับสนุน" @modalClose="hideAction('requestSupport')">
-      <request-support-form @actionDone="onActionDone()" @actionCancel="hideAction('requestSupport')"></request-support-form>
+      <request-support-form
+        :tokenInfo="tokenInfo"
+        @actionDone="onActionDone()"
+        @actionCancel="hideAction('requestSupport')"></request-support-form>
     </modal>
 
     <modal v-if="modalVisibility.invite" title="เชิญบุคคลอื่น" @modalClose="hideAction('invite')">
@@ -35,11 +42,17 @@
     </modal>
 
     <modal v-if="modalVisibility.finishCase" title="ดับไฟเสร็จสิ้น" @modalClose="hideAction('finishCase')">
-      <finish-case-form @actionDone="onActionDone()" @actionCancel="hideAction('finishCase')"></finish-case-form>
+      <finish-case-form
+        :tokenInfo="tokenInfo"
+        @actionDone="onActionDone()"
+        @actionCancel="hideAction('finishCase')"></finish-case-form>
     </modal>
 
     <modal v-if="modalVisibility.updateSituation" title="อัพเดตสถานการณ์" @modalClose="hideAction('updateSituation')">
-      <update-situation-form @actionDone="onActionDone()" @actionCancel="hideAction('updateSituation')"></update-situation-form>
+      <update-situation-form
+        :tokenInfo="tokenInfo"
+        @actionDone="onActionDone()"
+        @actionCancel="hideAction('updateSituation')"></update-situation-form>
     </modal>
   </div>
 </template>
@@ -81,6 +94,11 @@ export default {
         finishCase: false,
         updateSituation: false
       }
+    }
+  },
+  computed: {
+    department () {
+      return this.$store.state.user.authorities[0].name
     }
   },
   methods: {
@@ -130,12 +148,23 @@ export default {
     },
     uploadImage ($event) {
       if ($event.target.files.length > 0) {
+        this.$modal.show({
+          title: 'กำลังทำงาน...',
+          text: 'กรุณารอสักครู่'
+        })
         this.$store.dispatch('uploadImage', $event.target.files[0])
-          .then(resp => {
-            this.onActionDone()
-            this.$store.dispatch('postMessage', {
-              image_url: resp.metadata.downloadURLs[0]
+          .then(async resp => {
+            this.$modal.hide()
+            await this.$store.dispatch('postMessage', {
+              roomId: this.tokenInfo.roomId,
+              message: {
+                image_url: resp.metadata.downloadURLs[0],
+                userId: this.tokenInfo.userId,
+                username: this.tokenInfo.username
+              }
             })
+
+            this.onActionDone()
           })
           .catch(err => {
             console.log(err)
@@ -210,7 +239,6 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: -1;
   }
 
   .actions-list {
