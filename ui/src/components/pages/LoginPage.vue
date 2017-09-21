@@ -61,7 +61,11 @@ export default {
           let user = resp.data
 
           // get authorities.
-          this.axios.get(`${Vue.config.apiUrl}/authorities/`, { headers: { Authorization: `Token ${user.token}` } })
+          const opts = {
+            query: { page_size: 10 },
+            headers: { Authorization: `Token ${user.token}` }
+          }
+          this.axios.get(`${Vue.config.apiUrl}/authorities/`, opts)
             .then(resp => {
               user.authorities = resp.data
               this.$store.dispatch('setUser', user)
