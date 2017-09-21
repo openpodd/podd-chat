@@ -63,10 +63,14 @@ export default {
       this.currentToken = ''
       this.loading = true
 
+      const authority = this.$store.state.user.authorities[0]
+
       const payload = {
         roomId: room.id,
-        userId: 340,
-        username: 'noomz'
+        userId: this.$store.state.user.id,
+        username: this.$store.state.user.username,
+        authorityId: authority.id,
+        authorityName: authority.name
       }
 
       this.$store.dispatch('createToken', payload).then(token => {

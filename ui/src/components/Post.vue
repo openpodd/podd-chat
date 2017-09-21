@@ -1,10 +1,10 @@
 <template>
   <div class="post">
     <form class="chat-form" @submit.prevent="post()">
-      <button class="chat-form__action" @click.prevent="showActions()">
+      <button type="button" class="chat-form__action" @click.prevent="showActions()">
         ↑
       </button>
-      <input type="text" class="chat-form__input" v-model="message" @focus="focus()" @click="focus()"></input>
+      <input type="text" class="chat-form__input" v-model="message" @focus="focus()" @click="focus()">
       <button class="chat-form__submit" type="submit" :disabled="isEmpty()">ส่ง</button>
     </form>
     <div class="action-modal" v-if="actionModalVisible">
@@ -84,10 +84,6 @@ export default {
     }
   },
   methods: {
-    scrollBottom () {
-      let body = document.getElementsByTagName('body')[0]
-      window.scrollTo(0, body.scrollHeight)
-    },
     async post () {
       let payload = {
         roomId: this.tokenInfo.roomId,
@@ -99,15 +95,13 @@ export default {
       }
       await this.$store.dispatch('postMessage', payload)
       this.message = ''
-      this.scrollBottom()
+      this.$emit('postDone')
     },
     isEmpty () {
       return this.message.trim().length === 0
     },
     focus () {
-      setTimeout(() => {
-        this.scrollBottom()
-      }, 500)
+      this.$emit('focus')
     },
     toggleActions () {
       this.actionModalVisible = !this.actionModalVisible
@@ -132,7 +126,7 @@ export default {
       this.hideAction('updateSituation')
       this.hideActions()
 
-      this.scrollBottom()
+      this.$emit('postDone')
     },
     uploadImage ($event) {
       if ($event.target.files.length > 0) {

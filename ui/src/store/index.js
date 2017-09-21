@@ -6,15 +6,50 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
+const VERSION = '1.0'
+
+function setItem (key, payload) {
+  window.localStorage.setItem(key, JSON.stringify(payload))
+}
+
+function getItem (key) {
+  const payloadString = window.localStorage.getItem(key)
+
+  try {
+    return JSON.parse(payloadString)
+  } catch (err) {
+    console.log(err)
+    return null
+  }
+}
+
+// validate store version.
+const currentVersion = getItem('version')
+if (!currentVersion || currentVersion < VERSION) {
+  window.localStorage.clear()
+  setItem('version', VERSION)
+}
+
 const debug = process.env.NODE_ENV !== 'production'
 
 export default new Vuex.Store({
   state: {
+    user: {}
   },
   strict: debug,
   mutations: {
+    setUser (state, user) {
+      state.user = user
+      setItem('user', user)
+    }
   },
   actions: {
+    initUser ({commit}) {
+      commit('setUser', getItem('user'))
+    },
+    setUser ({commit}, user) {
+      commit('setUser', user)
+    },
     createToken: ({commit}, payload) => {
       return new Promise((resolve, reject) => {
         const roomId = payload.roomId.toString()
@@ -35,6 +70,7 @@ export default new Vuex.Store({
             if (token !== '') {
               resolve(token)
             }
+            console.log(payload)
 
             const ref = db.ref('tokens').push()
             return ref.set({

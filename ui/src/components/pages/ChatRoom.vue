@@ -1,7 +1,7 @@
 <template>
   <div class="chatroom" :class="{ '-fixed': fixed }" v-if="chatroom">
-    <room class="-room" :chatroom="chatroom" :tokenInfo="tokenInfo"></room>
-    <post class="-post" :chatroom="chatroom" :tokenInfo="tokenInfo"></post>
+    <room class="-room" :chatroom="chatroom" :tokenInfo="tokenInfo" ref="room"></room>
+    <post class="-post" :chatroom="chatroom" :tokenInfo="tokenInfo" @postDone="goBottom()" @focus="goBottom()"></post>
   </div>
 </template>
 
@@ -53,6 +53,9 @@ export default {
           this.chatroom = chatroom
         })
       })
+    },
+    goBottom () {
+      this.$refs.room.scrollBottom()
     }
   },
   watch: {
