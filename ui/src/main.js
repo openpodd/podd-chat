@@ -7,6 +7,9 @@ import store from './store'
 import * as VueGoogleMaps from 'vue2-google-maps'
 import config from './store/config'
 
+const firebase = require('firebase')
+firebase.initializeApp(config.firebase)
+
 const moment = require('moment')
 require('moment/locale/th')
 
@@ -26,6 +29,10 @@ import './main.less'
 Vue.use(validator)
 
 Vue.config.productionTip = false
+Vue.config.apiUrl = config.apiUrl
+
+Vue.$firebase = firebase
+Vue.prototype.$firebase = firebase
 
 /* eslint-disable no-new */
 new Vue({

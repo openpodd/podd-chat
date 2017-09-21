@@ -11,9 +11,10 @@
       </gmap-map>
     </div>
     <div class="-right">
-      <chat-room v-if="currentChatroom" :fixed="false"></chat-room>
-      <div class="member-list">
-
+      <chat-room v-if="currentToken" :fixed="false" :token="currentToken"></chat-room>
+      <div class="-no-chatroom" v-else>
+        <div v-if="!loading">กรุณาเลือกดูห้องสนทนาจากแผนที่</div>
+        <div v-else>กำลังโหลด...</div>
       </div>
     </div>
   </div>
@@ -23,43 +24,54 @@
 import ChatRoom from './ChatRoom.vue'
 
 export default {
-  components: {ChatRoom},
   name: 'EccDashboard',
+  components: {
+    ChatRoom
+  },
   data () {
     return {
       chatrooms: [],
-      currentChatroom: null
+      currentToken: '',
+      loading: false
     }
   },
   created () {
-    this.$store.dispatch('getChatRooms')
-      .then(rooms => {
-        this.chatrooms = rooms.filter(item => item.meta)
-        setTimeout(() => {
-          window.requestAnimationFrame(() => {
-            let bounds = new window.google.maps.LatLngBounds()
-            for (let room of this.chatrooms) {
-              bounds.extend(room.meta.location)
-            }
-            this.$refs.map.fitBounds(bounds)
-          })
-        }, 100)
-      })
+    this.$firebase.database().ref('rooms').on('child_added', snapshot => {
+      let item = snapshot.val()
+      if (item.meta && item.meta.location) {
+        this.chatrooms.push(Object.assign({id: snapshot.key}, item))
+      }
+
+      if (this.chatrooms.length === 1) {
+        this.fitBounds()
+      }
+    })
   },
   methods: {
+    fitBounds () {
+      setTimeout(() => {
+        window.requestAnimationFrame(() => {
+          let bounds = new window.google.maps.LatLngBounds()
+          for (let room of this.chatrooms) {
+            bounds.extend(room.meta.location)
+          }
+          this.$refs.map.fitBounds(bounds)
+        })
+      }, 200)
+    },
     markerClick (room) {
-      this.currentChatroom = null
+      this.currentToken = ''
+      this.loading = true
 
       const payload = {
         roomId: room.id,
         userId: 340,
         username: 'noomz'
       }
+
       this.$store.dispatch('createToken', payload).then(token => {
-        console.log('-> token', token)
-        this.$store.dispatch('setToken', token).then(() => {
-          this.currentChatroom = room
-        })
+        this.loading = false
+        this.currentToken = token
       })
     }
   }
@@ -87,5 +99,10 @@ export default {
   width: 30%;
   display: flex;
   flex-direction: column;
+}
+.-no-chatroom {
+  text-align: center;
+  height: 100%;
+  padding-top: 1em;
 }
 </style>

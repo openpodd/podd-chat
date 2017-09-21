@@ -60,6 +60,16 @@ export default {
     CommitAreaOperationForm,
     Modal
   },
+  props: {
+    chatroom: {
+      type: Object,
+      required: true
+    },
+    tokenInfo: {
+      type: Object,
+      required: true
+    }
+  },
   data () {
     return {
       message: '',
@@ -79,7 +89,15 @@ export default {
       window.scrollTo(0, body.scrollHeight)
     },
     async post () {
-      await this.$store.dispatch('postMessage', { message: this.message })
+      let payload = {
+        roomId: this.tokenInfo.roomId,
+        message: {
+          message: this.message,
+          userId: this.tokenInfo.userId,
+          username: this.tokenInfo.username
+        }
+      }
+      await this.$store.dispatch('postMessage', payload)
       this.message = ''
       this.scrollBottom()
     },

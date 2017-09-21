@@ -3,63 +3,25 @@
  */
 import Vue from 'vue'
 import Vuex from 'vuex'
-import {getQueryParameter} from './util.js'
-import config from './config.js'
-
-const firebase = require('firebase')
-
-firebase.initializeApp(config.firebase)
-const db = firebase.database()
-const storage = firebase.storage()
 
 Vue.use(Vuex)
 
 const debug = process.env.NODE_ENV !== 'production'
-const token = getQueryParameter('token')
 
 export default new Vuex.Store({
   state: {
-    token: token,
-    username: 'anonymous',
-    roomName: '---',
-    roomId: '',
-    messages: [],
-    apiUrl: config.apiUrl
   },
   strict: debug,
   mutations: {
-    setUserId: (state, userId) => {
-      state.userId = userId
-    },
-    setUsername: (state, username) => {
-      state.username = username
-    },
-    setRoomName: (state, name) => {
-      state.roomName = name
-    },
-    setRoomId: (state, roomId) => {
-      state.roomId = roomId
-    },
-    addMessage: (state, message) => {
-      state.messages.push(message)
-    },
-    clearMessage: (state) => {
-      state.messages = []
-    },
-    setToken: (state, token) => {
-      state.token = token
-    }
   },
   actions: {
-    setToken: ({commit, state}, token) => {
-      commit('setToken', token)
-    },
-    createToken: ({commit, state}, payload) => {
+    createToken: ({commit}, payload) => {
       return new Promise((resolve, reject) => {
         const roomId = payload.roomId.toString()
         const userId = parseInt(payload.userId, 10) || 0
         const username = payload.username
 
+        const db = Vue.$firebase.database()
         db.ref('tokens').orderByChild('roomId').equalTo(roomId).once('value')
           .then(snapshot => {
             let token = ''
@@ -99,62 +61,36 @@ export default new Vuex.Store({
           })
       })
     },
-    initChatRoom: ({commit, state}) => {
-      commit('clearMessage')
-      db.ref('tokens').child(state.token).once('value').then(snapshot => {
-        const userInfo = snapshot.val()
-        commit('setUsername', userInfo.username)
-        commit('setUserId', userInfo.userId)
-        return userInfo.roomId
-      }).then((roomId) => {
-        return db.ref('rooms').child(roomId).child('description').once('value').then(snapshot => {
-          commit('setRoomName', snapshot.val())
-          commit('setRoomId', roomId)
-        }).then(() => {
-          return db.ref('messages').child(roomId).on('child_added', msgSnapshot => {
-            const msg = msgSnapshot.val()
-            commit('addMessage', Object.assign({}, msg, {
-              id: msgSnapshot.ref.key,
-              ts: new Date(msg.ts)
-            }))
-          })
-        })
+    fetchToken: ({commit}, token) => {
+      const db = Vue.$firebase.database()
+      return db.ref('tokens').child(token).once('value').then(snapshot => {
+        return snapshot.val()
+      })
+    },
+    fetchChatroom: ({commit}, roomId) => {
+      const db = Vue.$firebase.database()
+      return db.ref('rooms').child(roomId).once('value').then(snapshot => {
+        return snapshot.val()
       })
     },
     postMessage: ({state}, payload) => {
-      const ref = db.ref('messages').child(state.roomId).push()
+      const db = Vue.$firebase.database()
+      const ref = db.ref('messages').child(payload.roomId).push()
 
       const message = Object.assign({
         type: 'message',
         message: '',
-        userId: state.userId,
-        username: state.username,
         ts: new Date().getTime()
-      }, payload)
+      }, payload.message)
 
       return ref.set(message)
     },
     uploadImage ({state}, file) {
+      const storage = Vue.$firebase.storage()
       const ext = file.name.replace(/.*(\.[a-zA-Z]+)$/, '$1')
       const filename = 'images/img-' + Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9) + ext
       const ref = storage.ref().child(filename)
       return ref.put(file)
-    },
-    getChatRooms: () => {
-      return new Promise((resolve, reject) => {
-        db.ref('rooms').orderByKey().limitToLast(10).once('value')
-          .then(async snapshot => {
-            let rooms = []
-            snapshot.forEach(child => {
-              rooms.push(Object.assign({ id: child.key }, child.val()))
-            })
-
-            resolve(rooms)
-          })
-          .catch(err => {
-            reject(err)
-          })
-      })
     }
   }
 })

@@ -2,13 +2,13 @@
   <div class="room">
     <div class="chat-header">
       <p class="chat-header__title">
-        {{ roomName }}
+        {{ chatroom.description }}
       </p>
       <div class="chat-header__user">
         <img :src="userAvatar">
       </div>
     </div>
-    <div class="chat-log">
+    <div class="chat-log" ref="chatLog">
       <div class="messages">
         <message v-bind:message="msg" v-for="msg in messages" :key="msg.id"></message>
       </div>
@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import Message from './Message'
 
 export default {
@@ -26,14 +27,42 @@ export default {
   components: {
     Message
   },
+  props: {
+    chatroom: {
+      type: Object,
+      required: true
+    },
+    tokenInfo: {
+      type: Object,
+      required: true
+    }
+  },
   data () {
     return {
+      inited: false,
       willScrollBottom: false,
-      notifyNewMessage: false
+      notifyNewMessage: false,
+      messages: []
     }
   },
   created () {
-    window.addEventListener('scroll', this.onScroll, false)
+    const db = this.$firebase.database()
+    db.ref('messages').child(this.tokenInfo.roomId).once('value').then(snapshot => {
+      snapshot.forEach(child => {
+        this.addMessage(child)
+      })
+
+      window.addEventListener('scroll', this.onScroll, false)
+      this.inited = true
+      this.willScrollBottom = true
+
+      const last = this.messages[this.messages.length - 1]
+      db.ref('messages').child(this.tokenInfo.roomId).orderByKey().startAt(last.id).on('child_added', msgSnapshot => {
+        if (msgSnapshot.key !== last.id) {
+          this.addMessage(msgSnapshot)
+        }
+      })
+    })
   },
   updated () {
     if (this.willScrollBottom) {
@@ -44,10 +73,15 @@ export default {
     window.removeEventListener('scroll', this.onScroll)
   },
   methods: {
+    addMessage (snapshot) {
+      let msg = snapshot.val()
+      msg.id = snapshot.ref.key
+      msg.ts = new Date(msg.ts)
+      this.messages.push(msg)
+    },
     scrollBottom () {
       this.notifyNewMessage = false
-      let body = document.getElementsByTagName('body')[0]
-      window.scrollTo(0, body.scrollHeight)
+      this.$refs.chatLog.scrollTo(0, this.$refs.chatLog.scrollHeight)
       this.willScrollBottom = false
     },
     onScroll (ev) {
@@ -58,24 +92,20 @@ export default {
     }
   },
   computed: {
-
     roomName () {
-      return this.$store.state.roomName
+      return this.chatroom.roomName
     },
     userAvatar: function () {
-      let userId = this.$store.state.userId
-      return (userId && userId !== '0') ? `${this.$store.state.apiUrl}/users/${userId}/profile_image/` : `https://api.adorable.io/avatars/35/${this.$store.state.username}@podd.png`
-    },
-    username: function () {
-      return this.$store.state.username
-    },
-    messages () {
-      return this.$store.state.messages
+      let userId = this.tokenInfo.userId
+      return (userId && userId !== '0') ? `${Vue.config.apiUrl}/users/${userId}/profile_image/` : `https://api.adorable.io/avatars/35/${this.tokenInfo.username}@podd.png`
     }
   },
   watch: {
     messages (val) {
-      if (val[val.length - 1].userId !== this.$store.state.userId) {
+      if (!this.inited) {
+        return
+      }
+      if (val[val.length - 1].userId !== this.tokenInfo.userId) {
         let el = document.scrollingElement
         if ((el.scrollTop + window.innerHeight) === el.scrollHeight && el.scrollHeight >= window.outerHeight) {
           this.willScrollBottom = true
@@ -142,6 +172,7 @@ export default {
   background-color: rgba(255, 255, 255, 1);
   opacity: .7;
   transform: translateX(-50%);
+  cursor: pointer;
 }
 
 .messages {

@@ -1,7 +1,7 @@
 <template>
-  <div class="chatroom" :class="{ '-fixed': fixed }">
-    <room class="-room"></room>
-    <post class="-post"></post>
+  <div class="chatroom" :class="{ '-fixed': fixed }" v-if="chatroom">
+    <room class="-room" :chatroom="chatroom" :tokenInfo="tokenInfo"></room>
+    <post class="-post" :chatroom="chatroom" :tokenInfo="tokenInfo"></post>
   </div>
 </template>
 
@@ -16,6 +16,17 @@ export default {
       type: Boolean,
       required: false,
       default: true
+    },
+    token: {
+      type: String,
+      required: false,
+      default: ''
+    }
+  },
+  data () {
+    return {
+      tokenInfo: null,
+      chatroom: null
     }
   },
   components: {
@@ -23,7 +34,31 @@ export default {
     Post
   },
   created () {
-    this.$store.dispatch('initChatRoom')
+    if (this.token) {
+      this.fetch(this.token)
+    } else {
+      this.fetch(this.$route.query.token)
+    }
+  },
+  methods: {
+    fetch (token) {
+      if (!token) {
+        return
+      }
+      this.chatroom = null
+
+      this.$store.dispatch('fetchToken', token).then(tokenInfo => {
+        this.tokenInfo = tokenInfo
+        this.$store.dispatch('fetchChatroom', this.tokenInfo.roomId).then(chatroom => {
+          this.chatroom = chatroom
+        })
+      })
+    }
+  },
+  watch: {
+    '$route': function (to) {
+      this.fetch(to.query.token)
+    }
   }
 }
 </script>

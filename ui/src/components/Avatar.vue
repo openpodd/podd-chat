@@ -7,6 +7,7 @@
 
 
 <script>
+  import Vue from 'vue'
   export default {
     name: 'avatar',
     props: ['message'],
@@ -18,7 +19,7 @@
         return this.message.userId && this.message.userId !== 0 && this.message.userId !== '0'
       },
       apiUrl () {
-        return this.$store.state.apiUrl
+        return Vue.config.apiUrl
       }
     }
   }
