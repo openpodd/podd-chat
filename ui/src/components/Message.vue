@@ -49,6 +49,13 @@
           <div><span class="-label">Action</span> อัพเดตสถานการณ์</div>
           ความรุนแรง: <span class="severity" :class="`severity-${message.severity}`">{{ getSeverityLabel(message.severity) }}</span>
         </div>
+
+        <div v-if="message.actionType == 'invite'">
+          <div><span class="-label">Action</span> ได้เชิญบุคคลเข้าร่วมแชท</div>
+          <ul class="-invited-list">
+            <li v-for="item in message.invitedList">{{ item.username }} (<span class="text-muted">{{ item.firstName }} {{ item.lastName}}</span>)</li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

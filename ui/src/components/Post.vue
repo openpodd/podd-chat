@@ -38,7 +38,10 @@
     </modal>
 
     <modal v-if="modalVisibility.invite" title="เชิญบุคคลอื่น" @modalClose="hideAction('invite')">
-      Feature ในอนาคต
+      <invite-form
+        :tokenInfo="tokenInfo"
+        @actionDone="onActionDone()"
+        @actionCancel="hideAction('invite')"></invite-form>
     </modal>
 
     <modal v-if="modalVisibility.finishCase" title="ดับไฟเสร็จสิ้น" @modalClose="hideAction('finishCase')">
@@ -51,6 +54,7 @@
     <modal v-if="modalVisibility.updateSituation" title="อัพเดตสถานการณ์" @modalClose="hideAction('updateSituation')">
       <update-situation-form
         :tokenInfo="tokenInfo"
+        :subject="chatroom.description"
         @actionDone="onActionDone()"
         @actionCancel="hideAction('updateSituation')"></update-situation-form>
     </modal>
@@ -63,10 +67,12 @@ import CommitAreaOperationForm from './actions/CommitAreaOperationForm.vue'
 import RequestSupportForm from './actions/RequestSupportForm.vue'
 import FinishCaseForm from './actions/FinishCaseForm.vue'
 import UpdateSituationForm from './actions/UpdateSituationForm.vue'
+import InviteForm from './actions/InviteForm.vue'
 
 export default {
   name: 'post',
   components: {
+    InviteForm,
     UpdateSituationForm,
     FinishCaseForm,
     RequestSupportForm,
