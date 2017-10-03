@@ -37,7 +37,8 @@ export default {
     }
   },
   created () {
-    this.$firebase.database().ref('rooms').on('child_added', snapshot => {
+    const ref = this.$firebase.database().ref('rooms')
+    this.child_added_cb = ref.on('child_added', snapshot => {
       let item = snapshot.val()
       if (item.meta && item.meta.location) {
         this.chatrooms.push(Object.assign({id: snapshot.key}, item))
@@ -46,11 +47,26 @@ export default {
       if (this.chatrooms.length === 1) {
         this.fitBounds()
       }
+
+      this.child_changed_cb = ref.on('child_changed', snapshot => {
+        let item = snapshot.val()
+        for (let i = 0; i < this.chatrooms.length; i++) {
+          if (snapshot.key === this.chatrooms[i].id) {
+            // copy only status
+            this.chatrooms[i].done = item.done
+            this.chatrooms[i].assigned = item.assigned
+          }
+        }
+      })
     })
+  },
+  destroyed () {
+    const ref = this.$firebase.database().ref('rooms')
+    ref.off('child_added', this.child_added_cb)
+    ref.off('child_changed', this.child_changed_cb)
   },
   methods: {
     icon (room) {
-      console.log(room)
       if (room.done) {
         return 'static/firedone.png'
       }
