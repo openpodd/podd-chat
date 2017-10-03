@@ -34,13 +34,24 @@ const debug = process.env.NODE_ENV !== 'production'
 
 export default new Vuex.Store({
   state: {
-    user: {}
+    user: {},
+    roomMembers: []
   },
   strict: debug,
   mutations: {
     setUser (state, user) {
       state.user = user
       setItem('user', user)
+    },
+    setRoomMembers (state, members) {
+      state.roomMembers = members
+    },
+    updateRoomMember (state, {id, value}) {
+      state.roomMembers.forEach((m, i) => {
+        if (m.id === id) {
+          Vue.set(state.roomMembers, i, Object.assign({}, m, value))
+        }
+      })
     }
   },
   actions: {
@@ -119,6 +130,39 @@ export default new Vuex.Store({
       const filename = 'images/img-' + Math.random().toString(36).substr(2, 9) + '-' + Math.random().toString(36).substr(2, 9) + ext
       const ref = storage.ref().child(filename)
       return ref.put(file)
+    },
+    fetchRoomMembers: async ({commit, dispatch}, roomId) => {
+      const db = Vue.$firebase.database()
+      const roomMembers = []
+
+      const snapshot = await db.ref('rooms').child(roomId).child('members').once('value')
+      snapshot.forEach(member => {
+        let id = member.key
+        const val = member.val()
+
+        // support old version, this is a member key
+        if (val.token) {
+          id = val.token
+        }
+
+        const result = {
+          id: id,
+          answered: val.answered,
+          joined: val.joined
+        }
+        roomMembers.push(result)
+      })
+      commit('setRoomMembers', roomMembers)
+
+      roomMembers.forEach(m => {
+        dispatch('fetchMember', m.id)
+      })
+    },
+    fetchMember: ({commit}, memberId) => {
+      const db = Vue.$firebase.database()
+      db.ref('tokens').child(memberId).once('value').then(snapshot => {
+        commit('updateRoomMember', {id: snapshot.key, value: snapshot.val()})
+      })
     }
   }
 })
