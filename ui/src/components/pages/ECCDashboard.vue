@@ -68,12 +68,12 @@ export default {
   methods: {
     icon (room) {
       if (room.done) {
-        return 'static/firedone.png'
+        return room.selected ? 'static/firedoneselected.png' : 'static/firedone.png'
       }
       if (room.assigned) {
-        return '/static/fireassign.png'
+        return room.selected ? 'static/fireassignselected.png' : '/static/fireassign.png'
       }
-      return '/static/fire.png'
+      return room.selected ? 'static/fireselected.png' : '/static/fire.png'
     },
     fitBounds () {
       setTimeout(() => {
@@ -89,6 +89,11 @@ export default {
     markerClick (room) {
       this.currentToken = ''
       this.loading = true
+
+      for (let r of this.chatrooms) {
+        r.selected = false
+      }
+      room.selected = true
 
       const authority = this.$store.state.user.authorities[0]
 
