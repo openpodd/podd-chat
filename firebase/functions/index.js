@@ -35,45 +35,38 @@ exports.createToken = functions.https.onRequest((req, res) => {
   }
 
   const db = admin.database()
+  const tokenMapRef = db.ref('tokenMap').child(roomId + req.body.userId)
   // find exising token
-  db.ref('tokens').orderByChild('ts').equalTo(roomId, 'roomId').once('value')
-    .then(snapshot =>  {
-      let token = ''
-      snapshot.forEach(child => {
-        let item = child.val()
-        if (item.userId === userId || item.username === username) {
-          token = child.key
-        }
-      })
+  return tokenMapRef.once('value').then(tokensnapshot => {
+    if (tokensnapshot.exists()) {
+      res.send(tokensnapshot.val()).status(200)
+      return
+    }
 
-      if (token !== '') {
-        res.send(token).status(200)
-        return
-      }
-
-      const ref = db.ref('tokens').push()
-      return ref.set({
-        roomId: roomId,
-        userId: userId,
-        username: username,
-        authorityId: authorityId,
-        authorityName: authorityName,
-        ts: now
-      }).then(() => {
-        res.send(ref.key).status(200)
-        // add members to rooms
-        const newMemberRef = db.ref('rooms').child(roomId).child('members').push()
-        newMemberRef.set({
-          token: ref.key,
-          joined: false,
-          answered: false
-        })
+    const ref = db.ref('tokens').push()
+    return ref.set({
+      roomId: roomId,
+      userId: userId,
+      username: username,
+      authorityId: authorityId,
+      authorityName: authorityName,
+      ts: now
+    }).then(() => {
+      // add members to rooms
+      const newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
+      return newMemberRef.set({
+        joined: false,
+        answered: false
       })
+    }).then(() => {
+      return tokenMapRef.set(ref.key)
+    }).then(() => {
+      res.send(ref.key).status(200)
     })
-    .catch(err => {
-      console.log(err)
-      res.send(err).status(500)
-    })
+  }).catch(err => {
+    console.log(err)
+    res.send(err).status(500)
+  })
 })
 
 exports.postMessage = functions.https.onRequest((req, res) => {

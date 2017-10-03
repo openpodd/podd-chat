@@ -57,20 +57,11 @@ export default new Vuex.Store({
         const username = payload.username
 
         const db = Vue.$firebase.database()
-        db.ref('tokens').orderByChild('roomId').equalTo(roomId).once('value')
-          .then(snapshot => {
-            let token = ''
-            snapshot.forEach(child => {
-              let item = child.val()
-              if (item.userId === userId || item.username === username) {
-                token = child.key
-              }
-            })
-
-            if (token !== '') {
-              resolve(token)
-            }
-
+        const tokenMapRef = db.ref('tokenMap').child(roomId + userId)
+        tokenMapRef.once('value').then(tokensnapshot => {
+          if (tokensnapshot.exists()) {
+            return resolve(tokensnapshot.val())
+          } else {
             const ref = db.ref('tokens').push()
             return ref.set({
               roomId: roomId,
@@ -80,20 +71,22 @@ export default new Vuex.Store({
               authorityName: payload.authorityName || '',
               ts: (new Date()).getTime()
             }).then(() => {
-              resolve(ref.key)
               // add members to rooms
-              const newMemberRef = db.ref('rooms').child(roomId).child('members').push()
-              newMemberRef.set({
-                token: ref.key,
+              const newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
+              return newMemberRef.set({
                 joined: false,
                 answered: false
               })
+            }).then(() => {
+              return tokenMapRef.set(ref.key)
+            }).then(() => {
+              return resolve(ref.key)
             })
-          })
-          .catch(err => {
-            console.log(err)
-            reject(err)
-          })
+          }
+        }).catch(err => {
+          console.log(err)
+          reject(err)
+        })
       })
     },
     fetchToken: ({commit}, token) => {
