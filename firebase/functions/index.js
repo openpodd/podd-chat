@@ -41,7 +41,7 @@ exports.createToken = functions.https.onRequest((req, res) => {
       let token = ''
       snapshot.forEach(child => {
         let item = child.val()
-        if (item.userId === userId || item.username === username) {
+        if (item.username === username) {
           token = child.key
         }
       })
