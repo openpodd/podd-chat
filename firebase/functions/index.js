@@ -35,7 +35,7 @@ exports.createToken = functions.https.onRequest((req, res) => {
   }
 
   const db = admin.database()
-  const tokenMapRef = db.ref('tokenMap').child(roomId + req.body.userId)
+  const tokenMapRef = db.ref('tokenMap').child(roomId + ":" + req.body.userId + ":" + username)
   // find exising token
   return tokenMapRef.once('value').then(tokensnapshot => {
     if (tokensnapshot.exists()) {
