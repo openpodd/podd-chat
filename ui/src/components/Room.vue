@@ -5,6 +5,8 @@
         {{ chatroom.description }}
       </p>
       <div class="chat-header__user">
+        <button @click="viewSituationSummary()"><i class="material-icons md-24">filter_list</i></button>
+        <button @click="viewRoomMembers()"><i class="material-icons md-24">face</i></button>
         <img :src="userAvatar">
       </div>
     </div>
@@ -15,17 +17,30 @@
 
       <div class="new_message" v-if="notifyNewMessage" @click="scrollBottom()">มีข้อความใหม่ ↓</div>
     </div>
+
+    <modal v-if="roomMembersModal" title="รายชื่อผู้เข้าร่วม" @modalClose="roomMembersModal = false">
+      <room-members :tokenInfo="tokenInfo"></room-members>
+    </modal>
+    <modal v-if="situationSummaryModal" title="สรุปสถานการณ์" @modalClose="situationSummaryModal = false">
+      <situation-summary :tokenInfo="tokenInfo" :messages="messages"></situation-summary>
+    </modal>
   </div>
 </template>
 
 <script>
 import Vue from 'vue'
 import Message from './Message'
+import Modal from './Modal.vue'
+import RoomMembers from './RoomMembers.vue'
+import SituationSummary from './SituationSummary.vue'
 
 export default {
   name: 'room',
   components: {
-    Message
+    Message,
+    Modal,
+    RoomMembers,
+    SituationSummary
   },
   props: {
     chatroom: {
@@ -42,7 +57,9 @@ export default {
       inited: false,
       willScrollBottom: false,
       notifyNewMessage: false,
-      messages: []
+      messages: [],
+      roomMembersModal: false,
+      situationSummaryModal: false
     }
   },
   created () {
@@ -89,6 +106,12 @@ export default {
       if (this.notifyNewMessage && (el.scrollTop + window.innerHeight) === el.scrollHeight) {
         this.notifyNewMessage = false
       }
+    },
+    viewRoomMembers () {
+      this.roomMembersModal = true
+    },
+    viewSituationSummary () {
+      this.situationSummaryModal = true
     }
   },
   computed: {
