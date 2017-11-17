@@ -83,7 +83,10 @@ export default {
   },
   computed: {
     isMine () {
-      return this.message.username === this.$store.state.user.username || this.message.userId === this.$store.state.user.id
+      if (this.$store.state.user != null && this.message != null) {
+        return this.message.username === this.$store.state.user.username || this.message.userId === this.$store.state.user.id
+      }
+      return false
     },
     parsedMessage () {
       return this.message.message.replace(/(https?:\/\/www.cmonehealth.org\/\b([-a-zA-Z0-9@:%_+.~#?&//=]*))/g, '<a target="_blank" href="$1">$1</a>')

@@ -170,7 +170,7 @@ export default {
       width: 2em;
       margin: .2em 0 0;
       border-radius: .25rem;
-      vertical-align: middle;
+      vertical-align: top;
     }
   }
 
