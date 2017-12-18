@@ -61,6 +61,9 @@ export default {
   watch: {
     '$route': function (to) {
       this.fetch(to.query.token)
+    },
+    token (newVal, oldVal) {
+      this.fetch(newVal)
     }
   }
 }

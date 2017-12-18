@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import ChatRoom from '../components/pages/ChatRoom.vue'
-import EccDashboard from '../components/pages/EccDashboard.vue'
+import Dashboard from '../components/pages/Dashboard.vue'
 import LoginPage from '../components/pages/LoginPage.vue'
 
 import store from '../store'
@@ -16,7 +16,7 @@ const router = new Router({
     },
     {
       path: '/dashboard',
-      component: EccDashboard,
+      component: Dashboard,
       meta: {
         requiredLogin: true
       }

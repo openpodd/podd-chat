@@ -12,7 +12,7 @@
       <ul class="actions-list">
         <li class="action-item">
           อัพโหลดรูป
-          <input type="file" @change="uploadImage">
+          <input type="file" accept="image/*" @change="uploadImage">
         </li>
         <li class="action-item" @click="showAction('commitAreaOperation')">ลงพื้นที่</li>
         <li class="action-item" @click="showAction('requestSupport')">ขอการสนับสนุน</li>

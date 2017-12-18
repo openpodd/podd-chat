@@ -7,7 +7,7 @@
         :zoom="12"
         map-type-id="terrain"
         style="width: 100%; height: 100%">
-        <gmap-marker v-for="room in chatrooms" :position="room.meta.location" @click="markerClick(room)"></gmap-marker>
+
         <gmap-marker v-for="room in chatrooms" :key="room.id" :position="room.meta.location" @click="markerClick(room)" :icon="icon(room)"></gmap-marker>
       </gmap-map>
     </div>
