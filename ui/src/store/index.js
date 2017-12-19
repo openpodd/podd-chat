@@ -45,13 +45,6 @@ export default new Vuex.Store({
     },
     setRoomMembers (state, members) {
       state.roomMembers = members
-    },
-    updateRoomMember (state, {id, value}) {
-      state.roomMembers.forEach((m, i) => {
-        if (m.id === id) {
-          Vue.set(state.roomMembers, i, Object.assign({}, m, value))
-        }
-      })
     }
   },
   actions: {
@@ -66,9 +59,11 @@ export default new Vuex.Store({
         const roomId = payload.roomId.toString()
         const userId = parseInt(payload.userId, 10) || 0
         const username = payload.username
+        const authorityId = parseInt(payload.authorityId, 10) || 0
+        const authorityName = payload.authorityName || ''
 
         const db = Vue.$firebase.database()
-        const tokenMapRef = db.ref('tokenMap').child(roomId + userId)
+        const tokenMapRef = db.ref('tokenMap').child(roomId + ':' + userId + ':' + username)
         tokenMapRef.once('value').then(tokensnapshot => {
           if (tokensnapshot.exists()) {
             return resolve(tokensnapshot.val())
@@ -78,15 +73,19 @@ export default new Vuex.Store({
               roomId: roomId,
               userId: userId,
               username: username,
-              authorityId: parseInt(payload.authorityId, 10) || 0,
-              authorityName: payload.authorityName || '',
+              authorityId: authorityId,
+              authorityName: authorityName,
               ts: (new Date()).getTime()
             }).then(() => {
               // add members to rooms
-              const newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
+              const newMemberRef = db.ref('rooms').child(roomId).child('members').child(userId)
               return newMemberRef.set({
                 joined: false,
-                answered: false
+                answered: false,
+                authorityId,
+                authorityName,
+                token: ref.key,
+                username: username
               })
             }).then(() => {
               return tokenMapRef.set(ref.key)
@@ -109,8 +108,14 @@ export default new Vuex.Store({
     fetchChatroom: ({commit}, roomId) => {
       const db = Vue.$firebase.database()
       return db.ref('rooms').child(roomId).once('value').then(snapshot => {
-        return snapshot.val()
+        const room = snapshot.val()
+        room.id = snapshot.key
+        return room
       })
+    },
+    joinChatroom: ({state}, room) => {
+      const db = Vue.$firebase.database()
+      return db.ref('rooms').child(room.id).child('members').child(state.user.id).child('joined').set(true)
     },
     postMessage: ({state}, payload) => {
       const db = Vue.$firebase.database()
@@ -122,7 +127,11 @@ export default new Vuex.Store({
         ts: new Date().getTime()
       }, payload.message)
 
-      return ref.set(message)
+      return ref.set(message).then(() => {
+        return db.ref('rooms').child(payload.roomId).child('members').child(payload.message.userId).update({
+          answered: true
+        })
+      })
     },
     uploadImage ({state}, file) {
       const storage = Vue.$firebase.storage()
@@ -140,29 +149,16 @@ export default new Vuex.Store({
         let id = member.key
         const val = member.val()
 
-        // support old version, this is a member key
-        if (val.token) {
-          id = val.token
-        }
-
         const result = {
           id: id,
+          username: val.username,
+          authorityName: val.authorityName,
           answered: val.answered,
           joined: val.joined
         }
         roomMembers.push(result)
       })
       commit('setRoomMembers', roomMembers)
-
-      roomMembers.forEach(m => {
-        dispatch('fetchMember', m.id)
-      })
-    },
-    fetchMember: ({commit}, memberId) => {
-      const db = Vue.$firebase.database()
-      db.ref('tokens').child(memberId).once('value').then(snapshot => {
-        commit('updateRoomMember', {id: snapshot.key, value: snapshot.val()})
-      })
     }
   }
 })

@@ -4,7 +4,16 @@
       <div id="map-container">
         <v-map :zoom="12" :center="[18.7061, 98.9817]">
           <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-          <v-circle v-for="room in chatrooms"  :key="room.id" :lat-lng="room.meta.location" :visible="room.visible" :radius="1000"
+          <v-geo-json  :geojson="cnxGeoJson" :options="geoJsonOptions"></v-geo-json>
+          <wms-tilelayer :key="firms.url"
+                         :baseurl="firms.url"
+                         :format="firms.format"
+                         :transparent="true"
+                         ids="fires24"
+                         :crs="firms.crs">
+
+          </wms-tilelayer>
+          <v-circle v-for="room in chatrooms"  :key="room.id" :lat-lng="room.meta.location" :visible="room.visible" :radius="radius(room)"
                     :color="color(room)"
                     v-on:l-click="select(room)"
           ></v-circle>
@@ -24,8 +33,14 @@
 </template>
 
 <script>
+import L from 'leaflet'
 import Vue2Leaflet from 'vue2-leaflet'
 import ChatRoom from './ChatRoom.vue'
+import { default as cnxGeoJson } from '../../assets/cnx-authority'
+
+function onEachFeature (feature, layer) {
+  layer.bindPopup('<p>' + feature.properties.name + '</p>')
+}
 
 export default {
   name: 'Dashboard',
@@ -34,14 +49,48 @@ export default {
     'v-tilelayer': Vue2Leaflet.TileLayer,
     'v-marker': Vue2Leaflet.Marker,
     'v-circle': Vue2Leaflet.LCircle,
+    'v-geo-json': Vue2Leaflet.GeoJSON,
+    'wms-tilelayer': Vue2Leaflet.WMSTileLayer,
     ChatRoom
   },
-  data () {
+  data: function () {
     return {
       chatrooms: [],
       currentRoom: null,
       currentToken: '',
-      loading: false
+      loading: false,
+      cnxGeoJson: cnxGeoJson,
+      geoJsonOptions: {
+        style: function () {
+          return {
+            weight: 2,
+            color: '#ECEFF1',
+            opacity: 1,
+            fillColor: '#e4ce7f',
+            fillOpacity: 0.4
+          }
+        },
+        onEachFeature
+      },
+      /**
+       * firms -> https://firms.modaps.eosdis.nasa.gov/web-services/#firms-wms
+       */
+      firms: {
+        url: 'https://firms.modaps.eosdis.nasa.gov/wms/c6/',
+        format: 'image/png',
+        transparent: true,
+        layers: [
+          {
+            'id': 'fires24',
+            'name': 'fires24'
+          },
+          {
+            'id': 'fires48',
+            'name': 'fires48'
+          }
+        ],
+        'crs': L.CRS.EPSG4326
+      }
     }
   },
   created () {
@@ -93,6 +142,14 @@ export default {
         this.loading = false
         console.log(token)
       })
+    },
+    radius (room) {
+      if (room.meta.severity === 'น้อย') {
+        return 300
+      } else if (room.meta.severity === 'ปานกลาง') {
+        return 750
+      }
+      return 1000
     },
     color (room) {
       if (room.done) {

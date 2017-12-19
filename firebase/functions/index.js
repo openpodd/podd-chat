@@ -53,10 +53,14 @@ exports.createToken = functions.https.onRequest((req, res) => {
       ts: now
     }).then(() => {
       // add members to rooms
-      const newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
+      const newMemberRef = db.ref('rooms').child(roomId).child('members').child(userId)
       return newMemberRef.set({
         joined: false,
-        answered: false
+        answered: false,
+        token: ref.key,
+        authorityId: authorityId,
+        authorityName: authorityName,
+        username: username
       })
     }).then(() => {
       return tokenMapRef.set(ref.key)
