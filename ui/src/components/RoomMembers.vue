@@ -26,13 +26,36 @@ export default {
       required: true
     }
   },
-  created () {
-    this.$store.dispatch('fetchRoomMembers', this.tokenInfo.roomId)
-  },
-  computed: {
-    members () {
-      return this.$store.state.roomMembers
+  data () {
+    return {
+      members: []
     }
+  },
+  created: function () {
+    const db = this.$firebase.database()
+    this.memberRef = db.ref('rooms').child(this.tokenInfo.roomId).child('members')
+
+    this.memberListener = this.memberRef.on('child_added', snapshot => {
+      let member = snapshot.val()
+      console.log('child_added', member)
+      this.members.push({
+        id: snapshot.key,
+        username: member.username,
+        authorityName: member.authorityName,
+        answered: member.answered,
+        joined: member.joined
+      })
+    })
+
+    this.memberChangedListerner = this.memberRef.on('child_changed', snapshot => {
+      let member = snapshot.val()
+      let srcMember = this.members.find(m => m.id === snapshot.key)
+      Object.assign(srcMember, member)
+    })
+  },
+  destroyed () {
+    this.memberRef.off('child_added', this.memberListener)
+    this.memberRef.off('child_changed', this.memberChangedListerner)
   }
 }
 </script>

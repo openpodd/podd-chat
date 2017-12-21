@@ -78,13 +78,12 @@ export default new Vuex.Store({
               ts: (new Date()).getTime()
             }).then(() => {
               // add members to rooms
-              const newMemberRef = db.ref('rooms').child(roomId).child('members').child(userId)
+              const newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
               return newMemberRef.set({
                 joined: false,
                 answered: false,
                 authorityId,
                 authorityName,
-                token: ref.key,
                 username: username
               })
             }).then(() => {
@@ -99,10 +98,26 @@ export default new Vuex.Store({
         })
       })
     },
-    fetchToken: ({commit}, token) => {
+    fetchToken: ({state, commit}, token) => {
       const db = Vue.$firebase.database()
       return db.ref('tokens').child(token).once('value').then(snapshot => {
-        return snapshot.val()
+        let info = snapshot.val()
+        info.key = token
+
+        if (!state.user || state.user.id === undefined) {
+          commit('setUser', {
+            id: info.userId,
+            authorities: [
+              {
+                id: info.authDomain,
+                name: info.authorityName
+              }
+            ],
+            username: info.username,
+            token: token
+          })
+        }
+        return info
       })
     },
     fetchChatroom: ({commit}, roomId) => {
@@ -113,9 +128,9 @@ export default new Vuex.Store({
         return room
       })
     },
-    joinChatroom: ({state}, room) => {
+    joinChatroom: ({state}, {room, token}) => {
       const db = Vue.$firebase.database()
-      return db.ref('rooms').child(room.id).child('members').child(state.user.id).child('joined').set(true)
+      return db.ref('rooms').child(room.id).child('members').child(token).child('joined').set(true)
     },
     postMessage: ({state}, payload) => {
       const db = Vue.$firebase.database()
@@ -128,9 +143,7 @@ export default new Vuex.Store({
       }, payload.message)
 
       return ref.set(message).then(() => {
-        return db.ref('rooms').child(payload.roomId).child('members').child(payload.message.userId).update({
-          answered: true
-        })
+        return db.ref('rooms').child(payload.roomId).child('members').child(state.user.token).child('answered').set(true)
       })
     },
     uploadImage ({state}, file) {

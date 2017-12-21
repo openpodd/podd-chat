@@ -52,7 +52,7 @@ export default {
         return this.$store.dispatch('fetchChatroom', this.tokenInfo.roomId)
       }).then(chatroom => {
         this.chatroom = chatroom
-        return this.$store.dispatch('joinChatroom', chatroom)
+        return this.$store.dispatch('joinChatroom', {room: chatroom, token})
       })
     },
     goBottom () {

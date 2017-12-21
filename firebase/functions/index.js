@@ -35,7 +35,7 @@ exports.createToken = functions.https.onRequest((req, res) => {
   }
 
   const db = admin.database()
-  const tokenMapRef = db.ref('tokenMap').child(roomId + ":" + req.body.userId + ":" + username)
+  const tokenMapRef = db.ref('tokenMap').child(roomId + ':' + req.body.userId + ':' + username)
   // find exising token
   return tokenMapRef.once('value').then(tokensnapshot => {
     if (tokensnapshot.exists()) {
@@ -53,11 +53,10 @@ exports.createToken = functions.https.onRequest((req, res) => {
       ts: now
     }).then(() => {
       // add members to rooms
-      const newMemberRef = db.ref('rooms').child(roomId).child('members').child(userId)
+      let newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
       return newMemberRef.set({
         joined: false,
         answered: false,
-        token: ref.key,
         authorityId: authorityId,
         authorityName: authorityName,
         username: username
@@ -159,7 +158,7 @@ exports.createRoom = functions.https.onRequest((req, res) => {
 exports.updateRoomStatus = functions.database.ref('/messages/{roomId}/{messageId}/actionType')
   .onWrite(event => {
     const actionType = event.data.val()
-    const baseRef = event.data.ref.parent.parent.parent.parent;
+    const baseRef = event.data.ref.parent.parent.parent.parent
     if (actionType === 'commitAreaOperation') {
       baseRef.child('rooms').child(event.params.roomId).child('assigned').set(true)
     } else if (actionType === 'finishCase') {

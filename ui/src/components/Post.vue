@@ -104,13 +104,17 @@ export default {
   },
   computed: {
     department () {
-      return this.$store.state.user.authorities[0].name
+      if (this.$store.state.user && this.$store.state.user.authorities && this.$store.state.user.authorities) {
+        return this.$store.state.user.authorities[0].name
+      }
+      return this.tokenInfo.authorityName
     }
   },
   methods: {
     async post () {
       let payload = {
         roomId: this.tokenInfo.roomId,
+        token: this.tokenInfo.key,
         message: {
           message: this.message,
           userId: this.tokenInfo.userId,
