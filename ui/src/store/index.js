@@ -144,6 +144,8 @@ export default new Vuex.Store({
 
       return ref.set(message).then(() => {
         return db.ref('rooms').child(payload.roomId).child('members').child(state.user.token).child('answered').set(true)
+      }).then(() => {
+        return db.ref('rooms').child(payload.roomId).child('lastMessage').set(ref.key)
       })
     },
     uploadImage ({state}, file) {

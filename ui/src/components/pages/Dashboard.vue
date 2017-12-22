@@ -13,6 +13,9 @@
                          :crs="firms.crs">
 
           </wms-tilelayer>
+          <v-group>
+            <wink v-for="room in winks" :key="room.id" :lat-lng="room.meta.location" v-on:l-click="select(room)"></wink>
+          </v-group>
           <v-circle v-for="room in chatrooms"  :key="room.id" :lat-lng="room.meta.location" :visible="room.visible" :radius="radius(room)"
                     :color="color(room)"
                     v-on:l-click="select(room)"
@@ -36,6 +39,7 @@
 import L from 'leaflet'
 import Vue2Leaflet from 'vue2-leaflet'
 import ChatRoom from './ChatRoom.vue'
+import Wink from '../Wink.vue'
 import { default as cnxGeoJson } from '../../assets/cnx-authority'
 
 function onEachFeature (feature, layer) {
@@ -50,12 +54,15 @@ export default {
     'v-marker': Vue2Leaflet.Marker,
     'v-circle': Vue2Leaflet.LCircle,
     'v-geo-json': Vue2Leaflet.GeoJSON,
+    'v-group': Vue2Leaflet.LayerGroup,
     'wms-tilelayer': Vue2Leaflet.WMSTileLayer,
+    'wink': Wink,
     ChatRoom
   },
   data: function () {
     return {
       chatrooms: [],
+      winks: [],
       currentRoom: null,
       currentToken: '',
       loading: false,
@@ -90,7 +97,8 @@ export default {
           }
         ],
         'crs': L.CRS.EPSG4326
-      }
+      },
+      startMonitorChanged: false
     }
   },
   created () {
@@ -98,35 +106,51 @@ export default {
     ref.on('child_added', snapshot => {
       let item = snapshot.val()
       let id = snapshot.key
-      this.chatrooms.push(Object.assign({
+      let room = Object.assign({
         id: id,
         visible: true,
         selected: false
-      }, item))
+      }, item)
+      this.chatrooms.push(room)
+      if (this.startMonitorChanged) {
+        this.addWink(room)
+      }
     })
     ref.on('child_changed', snapshot => {
       let item = snapshot.val()
       let key = snapshot.key
-      console.log('change', item)
-      console.log('key', key)
       let room = this.chatrooms.find(r => r.id === key)
-      console.log('found', room)
       if (room) {
         room.done = item.done
         room.assigned = item.assigned
+        if (this.startMonitorChanged) {
+          if (!this.currentRoom || this.currentRoom.id !== key) {
+            this.addWink(room)
+          }
+        }
       }
     })
+    setTimeout(() => {
+      this.startMonitorChanged = true
+    }, 3000)
   },
   methods: {
+    addWink (room) {
+      let foundRoom = this.winks.find(r => r.id === room.id)
+      if (!foundRoom) {
+        this.winks.push(room)
+      }
+    },
     select (room) {
-      console.log(room.id)
-
       this.loading = true
       if (this.currentRoom) {
         this.currentRoom.selected = false
       }
       this.currentRoom = room
       this.currentRoom.selected = true
+
+      const idx = this.winks.findIndex(w => w.id === room.id)
+      this.winks.splice(idx, 1)
 
       const authority = this.$store.state.user.authorities[0]
       const payload = {
@@ -140,7 +164,6 @@ export default {
       this.$store.dispatch('createToken', payload).then(token => {
         this.currentToken = token
         this.loading = false
-        console.log(token)
       })
     },
     radius (room) {
