@@ -23,6 +23,7 @@
       async submit () {
         let payload = {
           roomId: this.tokenInfo.roomId.toString(),
+          token: this.tokenInfo.key,
           message: {
             type: 'action',
             actionType: 'finishCase',

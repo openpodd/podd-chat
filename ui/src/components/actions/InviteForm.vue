@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="wrapper">
+    <div class="wrapper" v-if="authorized">
       <div class="-left">
         <div class="tab">
           <button class="tablinks" v-bind:class="{ active: activeTabIdx===0 }" @click="selectTab(0)">ผู้ใช้ระบบ PODD</button>
@@ -70,8 +70,9 @@
         </div>
       </div>
     </div>
+    <div class="wrapper" v-else="authorized">กรุณาใช้ Dashboard ในการเชิญคนเข้าร่วม</div>
 
-    <div class="actions">
+    <div class="actions" v-if="authorized">
       <button class="btn" @click.prevent="submit()">ยืนยัน</button>
       <button class="btn btn-cancel" @click.prevent="cancel()">ยกเลิก</button>
     </div>
@@ -105,6 +106,11 @@ export default {
       selected: [],
       activeTabIdx: 0,
       runningId: 0
+    }
+  },
+  computed: {
+    authorized () {
+      return this.$store.state.user.token && this.$store.state.user.token !== ''
     }
   },
   methods: {
@@ -184,6 +190,7 @@ export default {
           this.$modal.hide()
           let payload = {
             roomId: this.tokenInfo.roomId.toString(),
+            token: this.tokenInfo.key,
             message: {
               type: 'action',
               actionType: 'invite',

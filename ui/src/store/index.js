@@ -109,12 +109,12 @@ export default new Vuex.Store({
             id: info.userId,
             authorities: [
               {
-                id: info.authDomain,
+                id: info.authorityId,
                 name: info.authorityName
               }
             ],
             username: info.username,
-            token: token
+            token: '' // api token
           })
         }
         return info
@@ -143,7 +143,7 @@ export default new Vuex.Store({
       }, payload.message)
 
       return ref.set(message).then(() => {
-        return db.ref('rooms').child(payload.roomId).child('members').child(state.user.token).child('answered').set(true)
+        return db.ref('rooms').child(payload.roomId).child('members').child(payload.token).child('answered').set(true)
       }).then(() => {
         return db.ref('rooms').child(payload.roomId).child('lastMessage').set(ref.key)
       })

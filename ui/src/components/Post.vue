@@ -40,6 +40,7 @@
     <modal v-if="modalVisibility.invite" title="เชิญบุคคลอื่น" @modalClose="hideAction('invite')">
       <invite-form
         :tokenInfo="tokenInfo"
+        :subject="chatroom.description"
         @actionDone="onActionDone()"
         @actionCancel="hideAction('invite')"></invite-form>
     </modal>
@@ -54,7 +55,6 @@
     <modal v-if="modalVisibility.updateSituation" title="อัพเดตสถานการณ์" @modalClose="hideAction('updateSituation')">
       <update-situation-form
         :tokenInfo="tokenInfo"
-        :subject="chatroom.description"
         @actionDone="onActionDone()"
         @actionCancel="hideAction('updateSituation')"></update-situation-form>
     </modal>
@@ -167,6 +167,7 @@ export default {
             this.$modal.hide()
             await this.$store.dispatch('postMessage', {
               roomId: this.tokenInfo.roomId,
+              token: this.tokenInfo.key,
               message: {
                 image_url: resp.metadata.downloadURLs[0],
                 userId: this.tokenInfo.userId,
