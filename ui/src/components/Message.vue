@@ -53,7 +53,14 @@
         <div v-if="message.actionType == 'invite'">
           <div><span class="-label">Action</span> ได้เชิญบุคคลเข้าร่วมแชท</div>
           <ul class="-invited-list">
-            <li v-for="item in message.invitedList">{{ item.username }} (<span class="text-muted">{{ item.firstName }} {{ item.lastName}}</span>)</li>
+            <li v-for="item in message.invitedList">
+              <span v-if="item.type==='podd'">
+                {{ item.username }} (<span class="text-muted">{{ item.firstName }} {{ item.lastName}}</span>)
+              </span>
+              <span v-if="item.type==='anonymous'">
+                {{ item.name }} {{ item.authorityName}} (<span class="text-muted">{{ item.telno }}</span>)
+              </span>
+            </li>
           </ul>
         </div>
       </div>

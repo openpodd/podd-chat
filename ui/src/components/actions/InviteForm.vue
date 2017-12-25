@@ -2,7 +2,15 @@
   <div>
     <div class="wrapper">
       <div class="-left">
+        <div class="tab">
+          <button class="tablinks" v-bind:class="{ active: activeTabIdx===0 }" @click="selectTab(0)">ผู้ใช้ระบบ PODD</button>
+          <button class="tablinks" v-bind:class="{ active: activeTabIdx===1 }" @click="selectTab(1)">ผู้ใช้ภายนอก</button>
+        </div>
+
         <div class="wrapper">
+
+        </div>
+        <div class="tabcontent" v-show="activeTabIdx===0">
           <div class="-search">
             <form @submit.prevent="search(query)">
               <strong>ค้นหา</strong>
@@ -12,7 +20,7 @@
             <div class="search-results" v-if="results.length">
               <div class="item" v-for="item in results">
                 <span class="-name">{{ item.firstName }} {{ item.lastName }}</span> <span class="text-muted">({{ item.username }})</span>
-                <button class="btn pull-right" @click="add(item)">เพิ่ม</button>
+                <button class="btn pull-right" @click="addPoddUser(item)">เพิ่ม</button>
               </div>
             </div>
             <div v-else>
@@ -20,13 +28,39 @@
             </div>
           </div>
         </div>
+
+        <div class="tabcontent" v-show="activeTabIdx===1">
+          <div class="-search">
+            <form>
+              <div>
+                <strong>เบอร์โทรศัพท์ :</strong>
+                <input type="text" v-model="telno">
+              </div>
+              <div>
+                <strong>ชื่อ :</strong>
+                <input type="text" v-model="name">
+              </div>
+              <div>
+                <strong>หน่วยงาน :</strong>
+                <input type="text" v-model="authorityName">
+              </div>
+              <button class="btn" @click="addAnonymous(telno, name, authorityName)">เพิ่ม</button>
+            </form>
+          </div>
+        </div>
       </div>
+
       <div class="-right">
         <div class="-selected">
           <strong>ที่เลือกไว้</strong>
           <div v-if="selected.length">
             <div class="item" v-for="item in selected">
-              <span class="-name">{{ item.firstName }} {{ item.lastName }}</span> <span class="text-muted">({{ item.username }})</span>
+              <span v-show="item.type === 'podd'" class="-name">{{ item.firstName }} {{ item.lastName }} <span class="text-muted">({{ item.username }})</span></span>
+              <span v-show="item.type === 'anonymous'" class="-name">
+                {{ item.name }}
+                {{ item.authorityName }}
+                <span class="text-muted">({{ item.telno }})</span>
+              </span>
               <button class="btn pull-right" @click="remove(item)">เอาออก</button>
             </div>
           </div>
@@ -64,12 +98,19 @@ export default {
     return {
       user: null,
       query: '',
+      telno: '',
+      name: '',
       results: [],
       searching: false,
-      selected: []
+      selected: [],
+      activeTabIdx: 0,
+      runningId: 0
     }
   },
   methods: {
+    selectTab (idx) {
+      this.activeTabIdx = idx
+    },
     search (query) {
       this.searching = true
       let opts = {
@@ -85,8 +126,18 @@ export default {
           this.searching = false
         })
     },
-    add (item) {
+    addAnonymous (telno, name, authorityName) {
+      this.selected.push({
+        id: this.runningId++,
+        authorityName: authorityName,
+        telno: telno,
+        name: name,
+        type: 'anonymous'
+      })
+    },
+    addPoddUser (item) {
       if (!this.selected.find(it => it.id === item.id)) {
+        item.type = 'podd'
         this.selected.push(item)
       }
     },
@@ -109,7 +160,21 @@ export default {
       let invitePayload = {
         subject: this.subject,
         reportId: this.tokenInfo.roomId,
-        userIds: this.selected.map(item => item.id)
+        inviteList: this.selected.map(item => {
+          if (item.type === 'podd') {
+            return {
+              type: 'podd',
+              id: item.id
+            }
+          } else {
+            return {
+              type: 'anonymous',
+              telno: item.telno,
+              name: item.name,
+              authorityName: item.authorityName
+            }
+          }
+        })
       }
       let opts = {
         headers: { Authorization: `Token ${this.$store.state.user.token}` }
@@ -168,6 +233,7 @@ input[type=text] {
 
   .btn {
     padding: 2px 6px 3px;
+    cursor: pointer;
   }
 }
 
@@ -182,5 +248,36 @@ input[type=text] {
 }
 .-name {
   color: #039be5;
+}
+
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+.tab .tablinks {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+.tab .tablinks:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab .tablinks.active {
+  background-color: #ccc;
+}
+
+.tabcontent {
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
 }
 </style>

@@ -8,7 +8,7 @@
         <th>เข้าร่วม</th>
         <th>ตอบกลับ</th>
       </tr>
-      <tr v-for="member in members" :key="member.id">
+      <tr v-for="member in valieMembers" :key="member.id">
         <td>{{member.username}}</td>
         <td>{{member.authorityName}}</td>
         <td width="80"><i v-if="member.joined" class="material-icons md-24">check</i></td>
@@ -56,6 +56,11 @@ export default {
   destroyed () {
     this.memberRef.off('child_added', this.memberListener)
     this.memberRef.off('child_changed', this.memberChangedListerner)
+  },
+  computed: {
+    valieMembers () {
+      return this.members.filter(member => member.username !== undefined)
+    }
   }
 }
 </script>

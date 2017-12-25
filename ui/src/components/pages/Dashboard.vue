@@ -188,7 +188,7 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="css">
 #map-container {
   height: 100%;
 }
@@ -206,10 +206,10 @@ export default {
 .-left, .-right {
 }
 .-left {
-  width: 70%;
+  width: calc(100% - 400px);
 }
 .-right {
-  width: 30%;
+  width: 400px;
   display: flex;
   flex-direction: column;
 }
