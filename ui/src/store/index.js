@@ -9,11 +9,11 @@ Vue.use(Vuex)
 const VERSION = '1.0'
 
 function setItem (key, payload) {
-  window.localStorage.setItem(key, JSON.stringify(payload))
+  window.sessionStorage.setItem(key, JSON.stringify(payload))
 }
 
 function getItem (key) {
-  const payloadString = window.localStorage.getItem(key)
+  const payloadString = window.sessionStorage.getItem(key)
 
   try {
     return JSON.parse(payloadString)

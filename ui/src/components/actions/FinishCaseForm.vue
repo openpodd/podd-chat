@@ -1,5 +1,10 @@
 <template>
   <div>
+    <div>
+      ประเมินพื้นที่ความเสียหาย
+      <input type="number" v-model="area">
+      ไร่
+    </div>
     <p>ท่านต้องการยืนยันหรือไม่?</p>
     <button class="btn" @click.prevent="submit()">ยืนยัน</button>
     <button class="btn btn-cancel" @click.prevent="cancel()">ยกเลิก</button>
@@ -17,6 +22,7 @@
     },
     data () {
       return {
+        area: 0
       }
     },
     methods: {
@@ -27,6 +33,7 @@
           message: {
             type: 'action',
             actionType: 'finishCase',
+            area: this.area,
             userId: this.tokenInfo.userId,
             username: this.tokenInfo.username
           }

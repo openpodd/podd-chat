@@ -41,7 +41,7 @@
         </div>
 
         <div v-if="message.actionType == 'finishCase'">
-          <div><span class="-label">Action</span> ดับไฟเสร็จสิ้น</div>
+          <div><span class="-label">Action</span> ดับไฟเสร็จสิ้น ประเมินพื้นที่ความเสียหาย {{ message.area }} ไร่</div>
           <img class="sticker" src="../assets/amita_yeah.png">
         </div>
 
@@ -91,7 +91,7 @@ export default {
   computed: {
     isMine () {
       if (this.$store.state.user != null && this.message != null) {
-        return this.message.username === this.$store.state.user.username || this.message.userId === this.$store.state.user.id
+        return this.message.username === this.$store.state.user.username || this.message.username === this.$store.state.user.username
       }
       return false
     },

@@ -14,7 +14,7 @@
     computed: {
       isMine () {
         if (this.message != null && this.$store.state.user != null) {
-          return this.message.username === this.$store.state.user.username || this.message.userId === this.$store.state.user.id
+          return this.message.username === this.$store.state.user.username
         }
         return false
       },

@@ -2,7 +2,7 @@
   <div class="dashboard">
     <div class="-left">
       <div id="map-container">
-        <v-map :zoom="12" :center="[18.7061, 98.9817]">
+        <v-map :zoom="10" :center="[18.7061, 98.9817]">
           <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
           <v-geo-json  :geojson="cnxGeoJson" :options="geoJsonOptions"></v-geo-json>
           <wms-tilelayer :key="firms.url"
@@ -115,24 +115,27 @@ export default {
       if (this.startMonitorChanged) {
         this.addWink(room)
       }
-    })
-    ref.on('child_changed', snapshot => {
-      let item = snapshot.val()
-      let key = snapshot.key
-      let room = this.chatrooms.find(r => r.id === key)
-      if (room) {
-        room.done = item.done
-        room.assigned = item.assigned
+
+      snapshot.ref.on('value', roomsnap => {
+        let item = roomsnap.val()
+        let key = roomsnap.key
         if (this.startMonitorChanged) {
-          if (!this.currentRoom || this.currentRoom.id !== key) {
-            this.addWink(room)
+          let room = this.chatrooms.find(r => r.id === key)
+          if (room) {
+            room.done = item.done
+            room.assigned = item.assigned
+            if (!this.currentRoom || this.currentRoom.id !== key) {
+              this.addWink(room)
+            }
+          } else {
+            console.log('Room not found [' + key + ']')
           }
         }
-      }
+      })
     })
     setTimeout(() => {
       this.startMonitorChanged = true
-    }, 3000)
+    }, 5000)
   },
   methods: {
     addWink (room) {

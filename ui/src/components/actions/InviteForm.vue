@@ -31,21 +31,19 @@
 
         <div class="tabcontent" v-show="activeTabIdx===1">
           <div class="-search">
-            <form>
-              <div>
-                <strong>เบอร์โทรศัพท์ :</strong>
-                <input type="text" v-model="telno">
-              </div>
-              <div>
-                <strong>ชื่อ :</strong>
-                <input type="text" v-model="name">
-              </div>
-              <div>
-                <strong>หน่วยงาน :</strong>
-                <input type="text" v-model="authorityName">
-              </div>
-              <button class="btn" @click="addAnonymous(telno, name, authorityName)">เพิ่ม</button>
-            </form>
+            <div>
+              <strong>เบอร์โทรศัพท์ :</strong>
+              <input type="text" v-model="telno">
+            </div>
+            <div>
+              <strong>ชื่อ :</strong>
+              <input type="text" v-model="name">
+            </div>
+            <div>
+              <strong>หน่วยงาน :</strong>
+              <input type="text" v-model="authorityName">
+            </div>
+            <button class="btn" @click="addAnonymous(telno, name, authorityName)">เพิ่ม</button>
           </div>
         </div>
       </div>
@@ -105,7 +103,8 @@ export default {
       searching: false,
       selected: [],
       activeTabIdx: 0,
-      runningId: 0
+      runningId: 0,
+      authorityName: ''
     }
   },
   computed: {

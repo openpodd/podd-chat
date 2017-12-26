@@ -3,6 +3,8 @@
     <div class="chat-header">
       <p class="chat-header__title">
         {{ chatroom.description }}
+        <br/>
+        <span style="font-size:70%;">{{ username }}</span>
       </p>
       <div class="chat-header__user">
         <button @click="viewSituationSummary()"><i class="material-icons md-24">filter_list</i></button>
@@ -121,6 +123,9 @@ export default {
     userAvatar: function () {
       let userId = this.tokenInfo.userId
       return (userId && userId !== '0') ? `${Vue.config.apiUrl}/users/${userId}/profile_image/` : `https://api.adorable.io/avatars/35/${this.tokenInfo.username}@podd.png`
+    },
+    username: function () {
+      return this.$store.state.user.username
     }
   },
   watch: {
@@ -151,7 +156,7 @@ export default {
   top: 0;
   left: 0;
   right: 0;
-  height: 60px;
+  height: 70px;
 
   margin: 0 0 1em;
   color: #fff;
@@ -168,7 +173,7 @@ export default {
 
     img {
       width: 2em;
-      margin: .2em 0 0;
+      margin: 0em 0 0;
       border-radius: .25rem;
       vertical-align: top;
     }
