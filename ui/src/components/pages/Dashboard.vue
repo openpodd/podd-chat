@@ -1,17 +1,42 @@
 <template>
   <div class="dashboard">
     <div class="-left">
+      <div class="map-control">Layers
+        <input id="layerPrediction" type="checkbox" v-model="layerPrediction"><label for="layerPrediction">Prediction</label>
+        <input id="layerHotspot" type="checkbox" v-model="layerHotspot"><label for="layerHotspot">Hotspots</label>
+      </div>
       <div id="map-container">
         <v-map :zoom="10" :center="[18.7061, 98.9817]">
-            <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-            <v-geo-json  :geojson="cnxGeoJson" :options="geoJsonOptions"></v-geo-json>
-            <wms-tilelayer :key="firms.url"
-                           :baseurl="firms.url"
-                           :format="firms.format"
+          <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+          <v-geo-json  :geojson="cnxGeoJson" :options="geoJsonOptions"></v-geo-json>
+
+          <!--<wms-tilelayer :key="firms.url"-->
+                         <!--:baseurl="firms.url"-->
+                         <!--:format="firms.format"-->
+                         <!--:transparent="true"-->
+                         <!--ids="fires24"-->
+                         <!--:crs="firms.crs">-->
+          <!--</wms-tilelayer>-->
+          <v-group :visible="layerPrediction">
+            <wms-tilelayer :key="prediction.url"
+                           :baseurl="prediction.url"
+                           :format="prediction.format"
                            :transparent="true"
-                           ids="fires24"
-                           :crs="firms.crs">
+                           :ids="prediction.layer"
+                           :crs="prediction.crs">
             </wms-tilelayer>
+          </v-group>
+
+          <v-group :visible="layerHotspot">
+            <wms-tilelayer :key="hotspot.url"
+                           :baseurl="hotspot.url"
+                           :format="hotspot.format"
+                           :transparent="true"
+                           :ids="hotspot.layer"
+                           :crs="hotspot.crs">
+            </wms-tilelayer>
+          </v-group>
+
           <v-group>
             <wink v-for="room in winks" :key="room.id" :lat-lng="room.meta.location" v-on:l-click="select(room)"></wink>
           </v-group>
@@ -86,19 +111,25 @@ export default {
         url: 'https://firms.modaps.eosdis.nasa.gov/wms/c6/',
         format: 'image/png',
         transparent: true,
-        layers: [
-          {
-            'id': 'fires24',
-            'name': 'fires24'
-          },
-          {
-            'id': 'fires48',
-            'name': 'fires48'
-          }
-        ],
         'crs': L.CRS.EPSG4326
       },
-      startMonitorChanged: false
+      prediction: {
+        url: 'http://tile.gistda.or.th/geoserver/forestfire/wms',
+        format: 'image/png',
+        transparent: true,
+        layer: 'forestfire:fire_predict_20171218_2014124',
+        'crs': L.CRS.EPSG4326
+      },
+      hotspot: {
+        url: 'http://tile.gistda.or.th/geoserver/forestfire/wms',
+        format: 'image/png',
+        transparent: true,
+        layer: 'forestfire:aqm_daily_geo_v',
+        'crs': L.CRS.EPSG4326
+      },
+      startMonitorChanged: false,
+      layerPrediction: false,
+      layerHotspot: false
     }
   },
   created () {
