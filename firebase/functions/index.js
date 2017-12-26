@@ -158,14 +158,14 @@ exports.createRoom = functions.https.onRequest((req, res) => {
     res.send('ok').status(200)
   })
 })
-
-exports.updateRoomStatus = functions.database.ref('/messages/{roomId}/{messageId}/actionType')
-  .onWrite(event => {
-    const actionType = event.data.val()
-    const baseRef = event.data.ref.parent.parent.parent.parent
-    if (actionType === 'commitAreaOperation') {
-      baseRef.child('rooms').child(event.params.roomId).child('assigned').set(true)
-    } else if (actionType === 'finishCase') {
-      baseRef.child('rooms').child(event.params.roomId).child('done').set(true)
-    }
-  })
+//
+// exports.updateRoomStatus = functions.database.ref('/messages/{roomId}/{messageId}/actionType')
+//   .onWrite(event => {
+//     const actionType = event.data.val()
+//     const baseRef = event.data.ref.parent.parent.parent.parent
+//     if (actionType === 'commitAreaOperation') {
+//       baseRef.child('rooms').child(event.params.roomId).child('assigned').set(true)
+//     } else if (actionType === 'finishCase') {
+//       baseRef.child('rooms').child(event.params.roomId).child('done').set(true)
+//     }
+//   })

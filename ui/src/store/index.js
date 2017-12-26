@@ -144,10 +144,19 @@ export default new Vuex.Store({
         ts: new Date().getTime()
       }, payload.message)
 
+      let roomStatus = {
+        lastMessage: ref.key
+      }
+      if (message.actionType === 'commitAreaOperation') {
+        roomStatus.assigned = true
+      } else if (message.actionType === 'finishCase') {
+        roomStatus.done = true
+      }
+
       return ref.set(message).then(() => {
         return db.ref('rooms').child(payload.roomId).child('members').child(payload.token).child('answered').set(true)
       }).then(() => {
-        return db.ref('rooms').child(payload.roomId).child('lastMessage').set(ref.key)
+        return db.ref('rooms').child(payload.roomId).update(roomStatus)
       })
     },
     uploadImage ({state}, file) {
