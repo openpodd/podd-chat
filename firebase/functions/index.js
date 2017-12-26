@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 
@@ -35,7 +36,8 @@ exports.createToken = functions.https.onRequest((req, res) => {
   }
 
   const db = admin.database()
-  const tokenMapRef = db.ref('tokenMap').child(roomId + ':' + req.body.userId + ':' + username)
+  let userKey = (roomId + ':' + req.body.userId + ':' + username).replace(/[.\[\]()]/g, '_')
+  const tokenMapRef = db.ref('tokenMap').child(userKey)
   // find exising token
   return tokenMapRef.once('value').then(tokensnapshot => {
     if (tokensnapshot.exists()) {

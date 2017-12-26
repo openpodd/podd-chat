@@ -1,3 +1,4 @@
+/* eslint-disable no-useless-escape */
 /**
  * Created by pphetra on 6/23/2017 AD.
  */
@@ -63,7 +64,8 @@ export default new Vuex.Store({
         const authorityName = payload.authorityName || ''
 
         const db = Vue.$firebase.database()
-        const tokenMapRef = db.ref('tokenMap').child(roomId + ':' + userId + ':' + username)
+        let userKey = (roomId + ':' + userId + ':' + username).replace(/[.\[\]()]/g, '_')
+        const tokenMapRef = db.ref('tokenMap').child(userKey)
         tokenMapRef.once('value').then(tokensnapshot => {
           if (tokensnapshot.exists()) {
             return resolve(tokensnapshot.val())
