@@ -143,6 +143,8 @@ exports.createRoom = functions.https.onRequest((req, res) => {
   const db = admin.database()
   return db.ref('rooms').child(roomId).set({
     description: roomName,
+    assigned: false,
+    done: false,
     meta: meta
   }).then(() => {
     const ref = db.ref('messages').child(roomId).push()
