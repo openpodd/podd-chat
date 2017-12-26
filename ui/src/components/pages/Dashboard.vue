@@ -3,19 +3,19 @@
     <div class="-left">
       <div id="map-container">
         <v-map :zoom="10" :center="[18.7061, 98.9817]">
-          <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-          <v-geo-json  :geojson="cnxGeoJson" :options="geoJsonOptions"></v-geo-json>
-          <wms-tilelayer :key="firms.url"
-                         :baseurl="firms.url"
-                         :format="firms.format"
-                         :transparent="true"
-                         ids="fires24"
-                         :crs="firms.crs">
-
-          </wms-tilelayer>
+            <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+            <v-geo-json  :geojson="cnxGeoJson" :options="geoJsonOptions"></v-geo-json>
+            <wms-tilelayer :key="firms.url"
+                           :baseurl="firms.url"
+                           :format="firms.format"
+                           :transparent="true"
+                           ids="fires24"
+                           :crs="firms.crs">
+            </wms-tilelayer>
           <v-group>
             <wink v-for="room in winks" :key="room.id" :lat-lng="room.meta.location" v-on:l-click="select(room)"></wink>
           </v-group>
+
           <v-circle v-for="room in chatrooms"  :key="room.id" :lat-lng="room.meta.location" :visible="room.visible" :radius="radius(room)"
                     :color="color(room)"
                     v-on:l-click="select(room)"

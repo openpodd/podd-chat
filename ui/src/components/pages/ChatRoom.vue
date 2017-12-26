@@ -1,8 +1,10 @@
 <template>
-  <div class="chatroom" :class="{ '-fixed': fixed }" v-if="chatroom">
-    <room class="-room" :chatroom="chatroom" :tokenInfo="tokenInfo" ref="room"></room>
-    <post class="-post" :chatroom="chatroom" :tokenInfo="tokenInfo" @postDone="goBottom()" @focus="goBottom()"></post>
-  </div>
+    <div class="chatroom" :class="{ '-fixed': fixed }" v-if="chatroom">
+      <room class="-room" :chatroom="chatroom" :tokenInfo="tokenInfo" ref="room"></room>
+      <post class="-post" :chatroom="chatroom" :tokenInfo="tokenInfo" @postDone="goBottom()" @focus="goBottom()"></post>
+    </div>
+    <div v-else>ไม่สามารถแสดง chatroom ได้ เนื่องจากไม่พบรหัส token</div>
+
 </template>
 
 <script>
@@ -37,7 +39,11 @@ export default {
     if (this.token) {
       this.fetch(this.token)
     } else {
-      this.fetch(this.$route.query.token)
+      if (this.$route.params.token) {
+        this.fetch(this.$route.params.token)
+      } else {
+        this.fetch(this.$route.query.token)
+      }
     }
   },
   methods: {

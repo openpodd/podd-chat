@@ -15,6 +15,10 @@ const router = new Router({
       component: ChatRoom
     },
     {
+      path: '/chatroom/:token',
+      component: ChatRoom
+    },
+    {
       path: '/dashboard',
       component: Dashboard,
       meta: {
