@@ -33,11 +33,6 @@ const router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  if (window.location.pathname !== '/') {
-    window.location = '/'
-    return
-  }
-
   store.dispatch('initUser')
   if (to.meta.requiredLogin) {
     if (!store.state.user) {

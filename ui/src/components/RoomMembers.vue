@@ -9,7 +9,7 @@
         <th>ตอบกลับ</th>
       </tr>
       <tr v-for="member in valieMembers" :key="member.id">
-        <td>{{member.username}}</td>
+        <td>{{member.username}} </td>
         <td>{{member.authorityName}}</td>
         <td width="80"><i v-if="member.joined" class="material-icons md-24">check</i></td>
         <td width="80"><i v-if="member.answered" class="material-icons md-24">check</i></td>

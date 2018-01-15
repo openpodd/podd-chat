@@ -1,6 +1,6 @@
 <template>
   <div class="login-page">
-    <form class="form form--box border" @submit.prevent="login()" novalidate>
+    <form class="form form--box border" @submit.prevent="login()" novalidate v-if="!autoLogin">
       <h2 class="form__title">เข้าสู่ระบบ</h2>
       <div class="form__item">
         <label class="form__label" for="username">บัญชีผู้ใช้</label>
@@ -15,6 +15,7 @@
 
       <button class="btn btn-solid btn-full" :disabled="submitting">เข้าสู่ระบบ</button>
     </form>
+    <p v-if="autoLogin">กำลังดำเนินการ Auto Login PODD กรุณารอสักครู่</p>
   </div>
 </template>
 
@@ -29,6 +30,7 @@ export default {
       username: '',
       password: '',
       fbVisible: false,
+      autoLogin: false,
       $v: {}
     }
   },
@@ -45,6 +47,33 @@ export default {
         checkEmpty: true
       }
     })
+  },
+  mounted () {
+    const poddToken = Vue.getCookie('token')
+    if (poddToken !== undefined && poddToken !== '') {
+      this.autoLogin = true
+      this.axios.post(`${Vue.config.apiUrl}/firebase/token/`, {}, {
+        headers: { Authorization: `Token ${poddToken}` }
+      }).then(resp => {
+        return resp.data
+      }).then(user => {
+        return this.axios.get(`${Vue.config.apiUrl}/authorities/`, {
+          headers: { Authorization: `Token ${poddToken}` },
+          query: { page_size: 10 }
+        }).then(resp => {
+          user.authorities = resp.data
+          user.token = poddToken
+          this.$store.dispatch('setUser', user)
+          this.$router.push(`${this.next}`)
+        })
+      }).catch(err => {
+        console.log(err)
+        this.$modal.show({
+          title: 'ผิดพลาด',
+          text: 'เกิดความผิดพลาดในการเชื่อมต่อกับ Server'
+        })
+      })
+    }
   },
   computed: {
     next () {

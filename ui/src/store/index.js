@@ -53,6 +53,11 @@ export default new Vuex.Store({
       commit('setUser', getItem('user'))
     },
     setUser ({commit}, user) {
+      if (user.firebase_token !== undefined) {
+        Vue.$firebase.auth().signInWithCustomToken(user.firebase_token).catch(function (error) {
+          console.log(error)
+        })
+      }
       commit('setUser', user)
     },
     createToken: ({commit}, payload) => {
