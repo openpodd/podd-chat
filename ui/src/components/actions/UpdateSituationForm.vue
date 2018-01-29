@@ -33,6 +33,7 @@
       async submit () {
         let payload = {
           roomId: this.tokenInfo.roomId.toString(),
+          domainId: this.tokenInfo.domainId,
           token: this.tokenInfo.key,
           message: {
             type: 'action',

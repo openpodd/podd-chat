@@ -133,7 +133,8 @@ export default {
     }
   },
   created () {
-    const ref = this.$firebase.database().ref('rooms')
+    const domainId = this.$store.state.user.domain
+    const ref = this.$firebase.database().ref(domainId).child('rooms')
     ref.on('child_added', snapshot => {
       let item = snapshot.val()
       let id = snapshot.key
@@ -189,6 +190,7 @@ export default {
       const authority = this.$store.state.user.authorities[0]
       const payload = {
         roomId: room.id,
+        domainId: this.$store.state.user.domain,
         userId: this.$store.state.user.id,
         username: this.$store.state.user.username,
         authorityId: authority.id,

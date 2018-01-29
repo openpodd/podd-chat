@@ -63,6 +63,7 @@ export default new Vuex.Store({
     createToken: ({commit}, payload) => {
       return new Promise((resolve, reject) => {
         const roomId = payload.roomId.toString()
+        const domainId = payload.domainId
         const userId = parseInt(payload.userId, 10) || 0
         const username = payload.username
         const authorityId = parseInt(payload.authorityId, 10) || 0
@@ -70,7 +71,7 @@ export default new Vuex.Store({
 
         const db = Vue.$firebase.database()
         let userKey = (roomId + ':' + userId + ':' + username).replace(/[.\[\]()]/g, '_')
-        const tokenMapRef = db.ref('tokenMap').child(userKey)
+        const tokenMapRef = db.ref(domainId).child('tokenMap').child(userKey)
         tokenMapRef.once('value').then(tokensnapshot => {
           if (tokensnapshot.exists()) {
             return resolve(tokensnapshot.val())
@@ -78,6 +79,7 @@ export default new Vuex.Store({
             const ref = db.ref('tokens').push()
             return ref.set({
               roomId: roomId,
+              domainId: domainId,
               userId: userId,
               username: username,
               authorityId: authorityId,
@@ -85,7 +87,7 @@ export default new Vuex.Store({
               ts: (new Date()).getTime()
             }).then(() => {
               // add members to rooms
-              const newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
+              const newMemberRef = db.ref(domainId).child('rooms').child(roomId).child('members').child(ref.key)
               return newMemberRef.set({
                 joined: false,
                 answered: false,
@@ -120,6 +122,7 @@ export default new Vuex.Store({
                 name: info.authorityName
               }
             ],
+            domainId: info.domainId,
             username: info.username,
             token: '' // api token
           })
@@ -127,21 +130,21 @@ export default new Vuex.Store({
         return info
       })
     },
-    fetchChatroom: ({commit}, roomId) => {
+    fetchChatroom: ({commit}, {domainId, roomId}) => {
       const db = Vue.$firebase.database()
-      return db.ref('rooms').child(roomId).once('value').then(snapshot => {
+      return db.ref(domainId).child('rooms').child(roomId).once('value').then(snapshot => {
         const room = snapshot.val()
         room.id = snapshot.key
         return room
       })
     },
-    joinChatroom: ({state}, {room, token}) => {
+    joinChatroom: ({state}, {domainId, room, token}) => {
       const db = Vue.$firebase.database()
-      return db.ref('rooms').child(room.id).child('members').child(token).child('joined').set(true)
+      return db.ref(domainId).child('rooms').child(room.id).child('members').child(token).child('joined').set(true)
     },
     postMessage: ({state}, payload) => {
       const db = Vue.$firebase.database()
-      const ref = db.ref('messages').child(payload.roomId).push()
+      const ref = db.ref(payload.domainId).child('messages').child(payload.roomId).push()
 
       const message = Object.assign({
         type: 'message',
@@ -159,9 +162,9 @@ export default new Vuex.Store({
       }
 
       return ref.set(message).then(() => {
-        return db.ref('rooms').child(payload.roomId).child('members').child(payload.token).child('answered').set(true)
+        return db.ref(payload.domainId).child('rooms').child(payload.roomId).child('members').child(payload.token).child('answered').set(true)
       }).then(() => {
-        return db.ref('rooms').child(payload.roomId).update(roomStatus)
+        return db.ref(payload.domainId).child('rooms').child(payload.roomId).update(roomStatus)
       })
     },
     uploadImage ({state}, file) {
@@ -171,11 +174,12 @@ export default new Vuex.Store({
       const ref = storage.ref().child(filename)
       return ref.put(file)
     },
-    fetchRoomMembers: async ({commit, dispatch}, roomId) => {
+    fetchRoomMembers: async ({commit, dispatch}, {roomId, domainId}) => {
+      console.log(domainId, roomId)
       const db = Vue.$firebase.database()
       const roomMembers = []
 
-      const snapshot = await db.ref('rooms').child(roomId).child('members').once('value')
+      const snapshot = await db.ref(domainId).child('rooms').child(roomId).child('members').once('value')
       snapshot.forEach(member => {
         let id = member.key
         const val = member.val()

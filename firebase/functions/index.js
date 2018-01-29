@@ -27,6 +27,7 @@ exports.createToken = functions.https.onRequest((req, res) => {
   const roomId = req.body.roomId.toString()
   const username = req.body.username
   const userId = parseInt(req.body.userId, 10)
+  const domainId = req.body.domainId || 1
   const authorityId = parseInt(req.body.authorityId, 10) || 0
   const authorityName = req.body.authorityName || ''
   const secretKey = getSecretKey(req)
@@ -37,7 +38,7 @@ exports.createToken = functions.https.onRequest((req, res) => {
 
   const db = admin.database()
   let userKey = (roomId + ':' + req.body.userId + ':' + username).replace(/[.\[\]()]/g, '_')
-  const tokenMapRef = db.ref('tokenMap').child(userKey)
+  const tokenMapRef = db.ref(domainId).child('tokenMap').child(userKey)
   // find exising token
   return tokenMapRef.once('value').then(tokensnapshot => {
     if (tokensnapshot.exists()) {
@@ -55,7 +56,7 @@ exports.createToken = functions.https.onRequest((req, res) => {
       ts: now
     }).then(() => {
       // add members to rooms
-      let newMemberRef = db.ref('rooms').child(roomId).child('members').child(ref.key)
+      let newMemberRef = db.ref(domainId).child('rooms').child(roomId).child('members').child(ref.key)
       return newMemberRef.set({
         joined: false,
         answered: false,
@@ -90,6 +91,7 @@ exports.postMessage = functions.https.onRequest((req, res) => {
   const message = req.body.message
   const username = req.body.username
   const userId = parseInt(req.body.userId, 10)
+  const domainId = req.body.domainId || 1
   const imageUrl = req.body.imageUrl
   const meta = req.body.meta
   const secretKey = getSecretKey(req)
@@ -99,7 +101,7 @@ exports.postMessage = functions.https.onRequest((req, res) => {
   }
 
   const db = admin.database()
-  const ref = db.ref('messages').child(roomId).push()
+  const ref = db.ref(domainId).child('messages').child(roomId).push()
   const msgObject = {
     message: message,
     ts: now,
@@ -133,6 +135,7 @@ exports.createRoom = functions.https.onRequest((req, res) => {
   const welcomeMessage = req.body.welcomeMessage
   const userId = parseInt(req.body.userId, 10)
   const username = req.body.username
+  const domainId = req.body.domainId || 1
   const meta = req.body.meta || {}
   const secretKey = getSecretKey(req)
   if (secretKey !== functions.config().podd.secretkey) {
@@ -141,13 +144,13 @@ exports.createRoom = functions.https.onRequest((req, res) => {
   }
 
   const db = admin.database()
-  return db.ref('rooms').child(roomId).set({
+  return db.ref(domainId).child('rooms').child(roomId).set({
     description: roomName,
     assigned: false,
     done: false,
     meta: meta
   }).then(() => {
-    const ref = db.ref('messages').child(roomId).push()
+    const ref = db.ref(domainId).child('messages').child(roomId).push()
     return ref.set({
       userId: userId,
       message: welcomeMessage,
@@ -158,14 +161,3 @@ exports.createRoom = functions.https.onRequest((req, res) => {
     res.send('ok').status(200)
   })
 })
-//
-// exports.updateRoomStatus = functions.database.ref('/messages/{roomId}/{messageId}/actionType')
-//   .onWrite(event => {
-//     const actionType = event.data.val()
-//     const baseRef = event.data.ref.parent.parent.parent.parent
-//     if (actionType === 'commitAreaOperation') {
-//       baseRef.child('rooms').child(event.params.roomId).child('assigned').set(true)
-//     } else if (actionType === 'finishCase') {
-//       baseRef.child('rooms').child(event.params.roomId).child('done').set(true)
-//     }
-//   })

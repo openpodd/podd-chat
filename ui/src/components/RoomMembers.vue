@@ -33,7 +33,7 @@ export default {
   },
   created: function () {
     const db = this.$firebase.database()
-    this.memberRef = db.ref('rooms').child(this.tokenInfo.roomId).child('members')
+    this.memberRef = db.ref(this.tokenInfo.domainId).child('rooms').child(this.tokenInfo.roomId).child('members')
 
     this.memberListener = this.memberRef.on('child_added', snapshot => {
       let member = snapshot.val()

@@ -66,7 +66,7 @@ export default {
   },
   created () {
     const db = this.$firebase.database()
-    db.ref('messages').child(this.tokenInfo.roomId).once('value').then(snapshot => {
+    db.ref(this.tokenInfo.domainId).child('messages').child(this.tokenInfo.roomId).once('value').then(snapshot => {
       snapshot.forEach(child => {
         this.addMessage(child)
       })
@@ -76,7 +76,7 @@ export default {
       this.willScrollBottom = true
 
       const last = this.messages[this.messages.length - 1]
-      db.ref('messages').child(this.tokenInfo.roomId).orderByKey().startAt(last.id).on('child_added', msgSnapshot => {
+      db.ref(this.tokenInfo.domainId).child('messages').child(this.tokenInfo.roomId).orderByKey().startAt(last.id).on('child_added', msgSnapshot => {
         if (msgSnapshot.key !== last.id) {
           this.addMessage(msgSnapshot)
         }

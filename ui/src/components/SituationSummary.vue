@@ -19,7 +19,10 @@ export default {
     }
   },
   created () {
-    this.$store.dispatch('fetchRoomMembers', this.tokenInfo.roomId)
+    this.$store.dispatch('fetchRoomMembers', {
+      roomId: this.tokenInfo.roomId,
+      domainId: this.tokenInfo.domainId
+    })
   },
   computed: {
     members () {

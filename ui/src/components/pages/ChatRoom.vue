@@ -47,7 +47,7 @@ export default {
     }
   },
   methods: {
-    fetch (token) {
+    fetch: function (token) {
       if (!token) {
         return
       }
@@ -55,10 +55,13 @@ export default {
 
       this.$store.dispatch('fetchToken', token).then(tokenInfo => {
         this.tokenInfo = tokenInfo
-        return this.$store.dispatch('fetchChatroom', this.tokenInfo.roomId)
+        return this.$store.dispatch('fetchChatroom', {
+          domainId: this.tokenInfo.domainId,
+          roomId: this.tokenInfo.roomId
+        })
       }).then(chatroom => {
         this.chatroom = chatroom
-        return this.$store.dispatch('joinChatroom', {room: chatroom, token})
+        return this.$store.dispatch('joinChatroom', {room: chatroom, token, domainId: this.tokenInfo.domainId})
       })
     },
     goBottom () {

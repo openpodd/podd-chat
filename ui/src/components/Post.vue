@@ -113,6 +113,7 @@ export default {
   methods: {
     async post () {
       let payload = {
+        domainId: this.tokenInfo.domainId,
         roomId: this.tokenInfo.roomId,
         token: this.tokenInfo.key,
         message: {
@@ -166,6 +167,7 @@ export default {
           .then(async resp => {
             this.$modal.hide()
             await this.$store.dispatch('postMessage', {
+              domainId: this.tokenInfo.domainId,
               roomId: this.tokenInfo.roomId,
               token: this.tokenInfo.key,
               message: {
