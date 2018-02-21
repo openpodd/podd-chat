@@ -6,9 +6,9 @@
         <input id="layerHotspot" type="checkbox" v-model="layerHotspot"><label for="layerHotspot">Hotspots</label>
       </div>
       <div id="map-container">
-        <v-map :zoom="10" :center="[18.7061, 98.9817]">
+        <v-map :zoom="9" :center="mapCenter">
           <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-          <v-geo-json  :geojson="cnxGeoJson" :options="geoJsonOptions"></v-geo-json>
+          <v-geo-json  :geojson="geoJson" :options="geoJsonOptions"></v-geo-json>
 
           <!--<wms-tilelayer :key="firms.url"-->
                          <!--:baseurl="firms.url"-->
@@ -66,6 +66,7 @@ import Vue2Leaflet from 'vue2-leaflet'
 import ChatRoom from './ChatRoom.vue'
 import Wink from '../Wink.vue'
 import { default as cnxGeoJson } from '../../assets/cnx-authority'
+import { default as ceiGeoJson } from '../../assets/cei-authority'
 
 function onEachFeature (feature, layer) {
   layer.bindPopup('<p>' + feature.properties.name + '</p>')
@@ -91,7 +92,6 @@ export default {
       currentRoom: null,
       currentToken: '',
       loading: false,
-      cnxGeoJson: cnxGeoJson,
       geoJsonOptions: {
         style: function () {
           return {
@@ -130,6 +130,21 @@ export default {
       startMonitorChanged: false,
       layerPrediction: false,
       layerHotspot: false
+    }
+  },
+  computed: {
+    geoJson () {
+      if (this.$store.state.user.domain === 1) {
+        return cnxGeoJson
+      } else if (this.$store.state.user.domain === 7) {
+        return ceiGeoJson
+      }
+    },
+    mapCenter () {
+      if (this.$store.state.user.domain === 7) {
+        return [19.90858, 99.8325]
+      }
+      return [18.7061, 98.9817]
     }
   },
   created () {

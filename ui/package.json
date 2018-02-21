@@ -22,7 +22,8 @@
     "vue2-leaflet": "0.0.57",
     "vuefire": "^1.4.3",
     "vuex": "^2.3.1",
-    "leaflet": "latest"
+    "leaflet": "latest",
+    "utm-latlng": "1.0.5"
   },
   "devDependencies": {
     "autoprefixer": "^6.7.2",

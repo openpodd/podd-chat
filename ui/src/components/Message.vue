@@ -7,6 +7,9 @@
       <div class="message__metadata">
         <span class="message__date">เมื่อ {{ message.ts | moment("from") }}</span>
       </div>
+      <div v-if="containsLocation" class="utm">
+        UTM: {{ utm }}
+      </div>
       <div class="message__text" v-html="parsedMessage">
       </div>
       <div class="message__image">
@@ -70,6 +73,7 @@
 
 <script>
 import Avatar from './Avatar'
+import UTMLatLng from 'utm-latlng'
 
 const SEVERITY_TEXTS = {
   low: 'ไฟไม่รุนแรง',
@@ -110,12 +114,22 @@ export default {
         lat: parseFloat(latLng[1]),
         lng: parseFloat(latLng[2])
       }
+    },
+    utm () {
+      const loc = this.messageLocation
+      const utm = new UTMLatLng('WGS 84')
+      const utmValue = utm.convertLatLngToUtm(loc.lat, loc.lng, 0)
+      return `${utmValue.ZoneNumber} ${utmValue.ZoneLetter} ${utmValue.Easting} ${utmValue.Northing}`
     }
   }
 }
 </script>
 
 <style lang="less">
+  .utm {
+    margin-top: 10px;
+    color: crimson;
+  }
   .message {
     position: relative;
     background: 0 0;
@@ -226,4 +240,5 @@ export default {
   img.sticker {
     max-width: 100%;
   }
+
 </style>

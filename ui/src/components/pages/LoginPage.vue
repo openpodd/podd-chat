@@ -61,6 +61,7 @@ export default {
           headers: { Authorization: `Token ${poddToken}` },
           query: { page_size: 10 }
         }).then(resp => {
+          user.domain = user.domainId
           user.authorities = resp.data
           user.token = poddToken
           this.$store.dispatch('setUser', user)
