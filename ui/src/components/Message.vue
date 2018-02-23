@@ -42,17 +42,14 @@
           </div>
           <img class="sticker" src="../assets/amita_cry.png">
         </div>
-
-        <div v-if="message.actionType == 'finishCase'">
-          <div><span class="-label">Action</span> ดับไฟเสร็จสิ้น ประเมินพื้นที่ความเสียหาย {{ message.area }} ไร่</div>
-          <img class="sticker" src="../assets/amita_yeah.png">
-        </div>
-
         <div v-if="message.actionType == 'updateSituation'">
           <div><span class="-label">Action</span> อัพเดตสถานการณ์</div>
           ความรุนแรง: <span class="severity" :class="`severity-${message.severity}`">{{ getSeverityLabel(message.severity) }}</span>
         </div>
-
+        <div v-if="message.actionType == 'finishCase'">
+          <div><span class="-label">Action</span> ดับไฟเสร็จสิ้น ประเมินพื้นที่ความเสียหาย {{ message.area }} ไร่</div>
+          <img class="sticker" src="../assets/amita_yeah.png">
+        </div>
         <div v-if="message.actionType == 'invite'">
           <div><span class="-label">Action</span> ได้เชิญบุคคลเข้าร่วมแชท</div>
           <ul class="-invited-list">
@@ -238,7 +235,6 @@ export default {
   }
 
   img.sticker {
-    max-width: 100%;
+    max-width: 50%;
   }
-
 </style>

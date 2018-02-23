@@ -96,7 +96,7 @@ export default {
         style: function () {
           return {
             weight: 2,
-            color: '#ECEFF1',
+            color: '#999',
             opacity: 1,
             fillColor: '#e4ce7f',
             fillOpacity: 0.4
@@ -117,7 +117,7 @@ export default {
         url: 'http://tile.gistda.or.th/geoserver/forestfire/wms',
         format: 'image/png',
         transparent: true,
-        layer: 'forestfire:fire_predict_20171218_2014124',
+        layer: 'forestfire:fire_predict_20170515_20170521_geo',
         'crs': L.CRS.EPSG4326
       },
       hotspot: {

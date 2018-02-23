@@ -4,6 +4,7 @@
     <div class="-content">
       <h1>{{ title }}</h1>
       <slot></slot>
+      <div class="-close" @click="close()"><span class="close heavy"></span></div>
     </div>
   </div>
 </template>
@@ -34,6 +35,10 @@ export default {
     margin: 0;
   }
 
+  #div1 {
+  float:right;
+  } 
+
   .-backdrop {
     position: fixed;
     width: 100%;
@@ -46,6 +51,7 @@ export default {
   }
 
   .-content {
+    position: relative;
     margin: 70px 20px 10px 20px;
     padding: 12px;
 
@@ -54,4 +60,49 @@ export default {
     background-color: #fff;
   }
 }
+
+.-close {
+  position: absolute;
+  top: 25px;
+  right: 15px;
+}
+
+.close {
+  position: relative;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  overflow: hidden;
+
+  &:hover {
+    &::before, &::after {
+      background: #999;
+      cursor: pointer;
+    }
+  }
+
+  &:before, &::after {
+    content: '';
+    position: absolute;
+    height: 2px;
+    width: 100%;
+    top: 50%;
+    left: 0;
+    margin-top: -1px;
+    background: #000;
+  }
+  &::before {
+    transform: rotate(45deg);
+  }
+  &::after {
+    transform: rotate(-45deg);
+  }
+  &.heavy {
+    &::before, &::after {
+      height: 5px;
+      margin-top: -6px;
+    }
+  }
+}
+
 </style>

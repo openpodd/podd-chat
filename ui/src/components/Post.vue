@@ -17,8 +17,8 @@
         <li class="action-item" @click="showAction('commitAreaOperation')">ลงพื้นที่</li>
         <li class="action-item" @click="showAction('requestSupport')">ขอการสนับสนุน</li>
         <li class="action-item" @click="showAction('invite')">เชิญบุคคลอื่นเข้าร่วม</li>
-        <li class="action-item" @click="showAction('finishCase')">ดับไฟเสร็จสิ้น</li>
         <li class="action-item" @click="showAction('updateSituation')">อัพเดตสถานการณ์</li>
+        <li class="action-item" @click="showAction('finishCase')">ดับไฟเสร็จสิ้น</li>
       </ul>
     </div>
 
