@@ -7,8 +7,6 @@ import Vuex from 'vuex'
 
 Vue.use(Vuex)
 
-const VERSION = '1.0'
-
 function setItem (key, payload) {
   window.sessionStorage.setItem(key, JSON.stringify(payload))
 }
@@ -23,14 +21,6 @@ function getItem (key) {
     return null
   }
 }
-
-// validate store version.
-const currentVersion = getItem('version')
-if (!currentVersion || currentVersion < VERSION) {
-  window.localStorage.clear()
-  setItem('version', VERSION)
-}
-
 const debug = process.env.NODE_ENV !== 'production'
 
 export default new Vuex.Store({
