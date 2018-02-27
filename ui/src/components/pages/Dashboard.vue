@@ -8,7 +8,7 @@
       <div id="map-container">
         <v-map :zoom="9" :center="mapCenter">
           <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
-          <v-geo-json  :geojson="geoJson" :options="geoJsonOptions"></v-geo-json>
+          <v-geo-json  :geojson="authorityGeoJson" :options="geoJsonOptions"></v-geo-json>
 
           <!--<wms-tilelayer :key="firms.url"-->
                          <!--:baseurl="firms.url"-->
@@ -65,8 +65,6 @@ import L from 'leaflet'
 import Vue2Leaflet from 'vue2-leaflet'
 import ChatRoom from './ChatRoom.vue'
 import Wink from '../Wink.vue'
-import { default as cnxGeoJson } from '../../assets/cnx-authority'
-import { default as ceiGeoJson } from '../../assets/cei-authority'
 
 function onEachFeature (feature, layer) {
   layer.bindPopup('<p>' + feature.properties.name + '</p>')
@@ -92,6 +90,7 @@ export default {
       currentRoom: null,
       currentToken: '',
       loading: false,
+      authorityGeoJson: '',
       geoJsonOptions: {
         style: function () {
           return {
@@ -133,13 +132,6 @@ export default {
     }
   },
   computed: {
-    geoJson () {
-      if (this.$store.state.user.domain === 1) {
-        return cnxGeoJson
-      } else if (this.$store.state.user.domain === 7) {
-        return ceiGeoJson
-      }
-    },
     mapCenter () {
       if (this.$store.state.user.domain === 7) {
         return [19.90858, 99.8325]
@@ -183,6 +175,18 @@ export default {
     setTimeout(() => {
       this.startMonitorChanged = true
     }, 5000)
+
+    // loadGeojson
+    var endpoint = ''
+    if (this.$store.state.user.domain === 1) {
+      endpoint = 'cnx-authority.json'
+    } else if (this.$store.state.user.domain === 7) {
+      endpoint = 'cei-authority.json'
+    }
+    this.axios.get(`static/${endpoint}`, {}).then((resp) => {
+      console.log(resp.data)
+      this.authorityGeoJson = resp.data
+    })
   },
   methods: {
     addWink (room) {
