@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import moment from 'moment'
+// import moment from 'moment'
 
 export default {
   props: {
@@ -42,7 +42,7 @@ export default {
             let detail = ''
 
             if (msg.actionType === 'commitAreaOperation') {
-              detail = `ได้มีการยืนยันการลงพื้นที่ใน ${this.getDateTime(msg.ts)} ของหน่วยงาน ${msg.department} จำนวน ${msg.crewsNumber} คน`
+              detail = `ได้มีการยืนยันการลงพื้นที่ใน ${msg.ts} ของหน่วยงาน ${msg.department} จำนวน ${msg.crewsNumber} คน`
             } else if (msg.actionType === 'requestSupport') {
               detail = 'ขอความช่วยเหลือ'
               const r = msg.resources
@@ -59,7 +59,7 @@ export default {
                 detail += 'และระบุเพิ่มเติมว่า ' + msg.others
               }
             } else if (msg.actionType === 'updateSituation') {
-              detail += `ได้อัพเดตสถานการณ์ความรุนแรง ใน${this.getDateTime(msg.ts)} อยู่ในระดับ`
+              detail += `ได้อัพเดตสถานการณ์ความรุนแรง ใน${msg.ts} อยู่ในระดับ`
               const SEVERITY = {
                 low: 'ไฟไม่รุนแรง',
                 high: 'เริ่มเข้าสู่ช่วงวิกฤต',
@@ -67,7 +67,7 @@ export default {
               }
               detail += SEVERITY[msg.severity]
             } else if (msg.actionType === 'finishCase') {
-              detail += `ในทีสุดได้เสร็จสิ้นภารกิจการดับไฟ เมื่อ${this.getDateTime(msg.ts)} `
+              detail += `ในทีสุดได้เสร็จสิ้นภารกิจการดับไฟ เมื่อ${msg.ts} `
             }
             actions.push(detail)
           }
@@ -84,15 +84,15 @@ export default {
       }
 
       actions.unshift(`${department} รายงานสถานการณ์ไฟป่า ` +
-        this.getDateTime(lastLocationMsg.ts) + ' บริเวณไฟไหม้ ' + lastLocationMsg.message)
+        lastLocationMsg.ts + ' บริเวณไฟไหม้ ' + lastLocationMsg.message)
 
       return actions.join(' ')
     }
   },
   methods: {
-    getDateTime (ts) {
-      return moment(ts).format('วันddddที่ Do MMMM YYYY เวลา h:mm น. a')
-    }
+   // getDateTime (ts) {
+    //  return moment(ts).format('วันที่ LLL น.')
+   // }
   }
 }
 </script>

@@ -35,6 +35,7 @@ import Message from './Message'
 import Modal from './Modal.vue'
 import RoomMembers from './RoomMembers.vue'
 import SituationSummary from './SituationSummary.vue'
+import moment from 'moment'
 
 export default {
   name: 'room',
@@ -95,7 +96,7 @@ export default {
     addMessage (snapshot) {
       let msg = snapshot.val()
       msg.id = snapshot.ref.key
-      msg.ts = new Date(msg.ts)
+      msg.ts = this.getDateTime(msg.ts)
       this.messages.push(msg)
     },
     scrollBottom () {
@@ -114,6 +115,9 @@ export default {
     },
     viewSituationSummary () {
       this.situationSummaryModal = true
+    },
+    getDateTime (ts) {
+      return moment(ts).format('วันที่ LLL น.')
     }
   },
   computed: {
