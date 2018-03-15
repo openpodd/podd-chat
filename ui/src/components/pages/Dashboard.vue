@@ -42,7 +42,7 @@
           </v-group>
 
           <v-circle v-for="room in chatrooms"  :key="room.id" :lat-lng="room.meta.location" :visible="room.visible" :radius="radius(room)"
-                    :color="color(room)"
+                    :color="color(room)" :tooltip="room.description"
                     v-on:l-click="select(room)"
           ></v-circle>
         </v-map>
@@ -65,6 +65,7 @@ import L from 'leaflet'
 import Vue2Leaflet from 'vue2-leaflet'
 import ChatRoom from './ChatRoom.vue'
 import Wink from '../Wink.vue'
+import FireMarker from '../CircleMarker'
 
 function onEachFeature (feature, layer) {
   layer.bindPopup('<p>' + feature.properties.name + '</p>')
@@ -76,7 +77,7 @@ export default {
     'v-map': Vue2Leaflet.Map,
     'v-tilelayer': Vue2Leaflet.TileLayer,
     'v-marker': Vue2Leaflet.Marker,
-    'v-circle': Vue2Leaflet.LCircle,
+    'v-circle': FireMarker,
     'v-geo-json': Vue2Leaflet.GeoJSON,
     'v-group': Vue2Leaflet.LayerGroup,
     'wms-tilelayer': Vue2Leaflet.WMSTileLayer,
