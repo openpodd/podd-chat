@@ -165,8 +165,11 @@ export default {
             room.done = item.done
             room.assigned = item.assigned
             if (!this.currentRoom || this.currentRoom.id !== key) {
-              this.addWink(room)
+              if (room.lastMessage !== item.lastMessage) {
+                this.addWink(room)
+              }
             }
+            room.lastMessage = item.lastMessage
           } else {
             console.log('Room not found [' + key + ']')
           }
