@@ -28,13 +28,14 @@
           </v-group>
 
           <v-group :visible="layerHotspot">
-            <wms-tilelayer :key="hotspot.url"
+            <hotspot :key="hotspot.url"
                            :baseurl="hotspot.url"
                            :format="hotspot.format"
                            :transparent="true"
                            :ids="hotspot.layer"
+                           :cqlfilter="hotspot.CQL_FILTER"
                            :crs="hotspot.crs">
-            </wms-tilelayer>
+            </hotspot>
           </v-group>
 
           <v-group>
@@ -66,6 +67,8 @@ import Vue2Leaflet from 'vue2-leaflet'
 import ChatRoom from './ChatRoom.vue'
 import Wink from '../Wink.vue'
 import FireMarker from '../CircleMarker'
+import HotspotLayer from '../HotspotLayer'
+import moment from 'moment'
 
 function onEachFeature (feature, layer) {
   layer.bindPopup('<p>' + feature.properties.name + '</p>')
@@ -81,6 +84,7 @@ export default {
     'v-geo-json': Vue2Leaflet.GeoJSON,
     'v-group': Vue2Leaflet.LayerGroup,
     'wms-tilelayer': Vue2Leaflet.WMSTileLayer,
+    'hotspot': HotspotLayer,
     'wink': Wink,
     ChatRoom
   },
@@ -120,13 +124,6 @@ export default {
         layer: 'forestfire:fire_predict_20170515_20170521_geo',
         'crs': L.CRS.EPSG4326
       },
-      hotspot: {
-        url: 'http://tile.gistda.or.th/geoserver/forestfire/wms',
-        format: 'image/png',
-        transparent: true,
-        layer: 'forestfire:aqm_daily_geo_v',
-        'crs': L.CRS.EPSG4326
-      },
       startMonitorChanged: false,
       layerPrediction: false,
       layerHotspot: false
@@ -138,7 +135,20 @@ export default {
         return [19.90858, 99.8325]
       }
       return [18.7061, 98.9817]
+    },
+    hotspot () {
+      const today = moment()
+      const yesterday = moment().subtract(1, 'days')
+      return {
+        url: 'http://tile.gistda.or.th/geoserver/forestfire/wms',
+        format: 'image/png',
+        transparent: true,
+        layer: 'forestfire:hotspot',
+        CQL_FILTER: `datetime between ${yesterday.toISOString()} and ${today.toISOString()}`,
+        'crs': L.CRS.EPSG4326
+      }
     }
+
   },
   created () {
     const domainId = this.$store.state.user.domain
