@@ -3,7 +3,8 @@
     <div class="-left">
       <div class="map-control">Layers
         <input id="layerPrediction" type="checkbox" v-model="layerPrediction"><label for="layerPrediction">Prediction</label>
-        <input id="layerHotspot" type="checkbox" v-model="layerHotspot"><label for="layerHotspot">Hotspots</label>
+        <input id="layerHotspotall" type="checkbox" v-model="layerHotspotall"><label for="layerHotspotall">Hotspots(All)</label>
+        <input id="layerHotspot" type="checkbox" v-model="layerHotspot"><label for="layerHotspot">Hotspots(day)</label>
       </div>
       <div id="map-container">
         <v-map :zoom="9" :center="mapCenter">
@@ -24,6 +25,16 @@
                            :transparent="true"
                            :ids="prediction.layer"
                            :crs="prediction.crs">
+            </wms-tilelayer>
+          </v-group>
+
+          <v-group :visible="layerHotspotall">
+            <wms-tilelayer :key="hotspotall.url"
+                           :baseurl="hotspotall.url"
+                           :format="hotspotall.format"
+                           :transparent="true"
+                           :ids="hotspotall.layer"
+                           :crs="hotspotall.crs">
             </wms-tilelayer>
           </v-group>
 
@@ -124,8 +135,16 @@ export default {
         layer: 'forestfire:fire_predict_20170515_20170521_geo',
         'crs': L.CRS.EPSG4326
       },
+      hotspotall: {
+        url: 'http://tile.gistda.or.th/geoserver/forestfire/wms',
+        format: 'image/png',
+        transparent: true,
+        layer: 'forestfire:hotspot',
+        'crs': L.CRS.EPSG4326
+      },
       startMonitorChanged: false,
       layerPrediction: false,
+      layerHotspotall: false,
       layerHotspot: false
     }
   },
