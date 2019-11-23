@@ -108,7 +108,6 @@ export default {
     },
     addLayer (layer, alreadyAdded) {
       if (!alreadyAdded) {
-        debugger
         this.mapObject.addLayer(layer.mapObject)
       }
     },
