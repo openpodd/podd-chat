@@ -2,13 +2,17 @@
   <div class="dashboard">
     <div class="-left">
       <div class="map-control">Layers
+        <input id="googleMap" type="checkbox" v-model="googleMapVisible"><label for="googleMap">Google Map</label>
         <input id="layerPrediction" type="checkbox" v-model="layerPrediction"><label for="layerPrediction">Prediction</label>
         <input id="layerHotspotall" type="checkbox" v-model="layerHotspotall"><label for="layerHotspotall">Hotspots(All)</label>
         <input id="layerHotspot" type="checkbox" v-model="layerHotspot"><label for="layerHotspot">Hotspots(day)</label>
       </div>
       <div id="map-container">
         <v-map :zoom="9" :center="mapCenter">
-          <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+          <v-group :visible="!googleMapVisible">
+            <v-tilelayer url="http://{s}.tile.osm.org/{z}/{x}/{y}.png"></v-tilelayer>
+          </v-group>
+          <my-g-map :apikey="googleApiKey" :options="googleMapOptions" :visible="googleMapVisible"></my-g-map>
           <v-geo-json  :geojson="authorityGeoJson" :options="geoJsonOptions"></v-geo-json>
 
           <!--<wms-tilelayer :key="firms.url"-->
@@ -79,6 +83,8 @@ import ChatRoom from './ChatRoom.vue'
 import Wink from '../Wink.vue'
 import FireMarker from '../CircleMarker'
 import HotspotLayer from '../HotspotLayer'
+import GoogleMapLayer from '../GoogleMapLayer'
+import config from '../../store/config'
 import moment from 'moment'
 
 function onEachFeature (feature, layer) {
@@ -97,6 +103,7 @@ export default {
     'wms-tilelayer': Vue2Leaflet.WMSTileLayer,
     'hotspot': HotspotLayer,
     'wink': Wink,
+    'my-g-map': GoogleMapLayer,
     ChatRoom
   },
   data: function () {
@@ -107,6 +114,9 @@ export default {
       currentToken: '',
       loading: false,
       authorityGeoJson: '',
+      googleApiKey: config.googleMapApiKey,
+      googleMapOptions: {type: 'roadmap'},
+      googleMapVisible: true,
       geoJsonOptions: {
         style: function () {
           return {
