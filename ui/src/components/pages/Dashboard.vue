@@ -152,6 +152,8 @@ export default {
     mapCenter () {
       if (this.$store.state.user.domain === 7) {
         return [19.90858, 99.8325]
+      } else if (this.$store.state.user.domain === 9) {
+        return [18.0678091, 98.4355394]
       }
       return [18.7061, 98.9817]
     },
@@ -215,6 +217,8 @@ export default {
       endpoint = 'cnx-authority.json'
     } else if (this.$store.state.user.domain === 7) {
       endpoint = 'cei-authority.json'
+    } else if (this.$store.state.user.domain === 9) {
+      endpoint = 'lamphun-authority.json'
     }
     this.axios.get(`static/${endpoint}`, {}).then((resp) => {
       console.log(resp.data)
