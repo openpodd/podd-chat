@@ -59,13 +59,21 @@ const propsBinder = (vueElement, leafletElement, props, options) => {
       })
     } else if (setMethodName === 'setOptions') {
       vueElement.$watch(key, (newVal, oldVal) => {
-        L.setOptions(leafletElement, newVal)
+        if (key === 'options' && newVal.type !== oldVal.type) {
+          leafletElement._mutant.setMapTypeId(newVal.type)
+        } else {
+          L.setOptions(leafletElement, newVal)
+        }
       }, {
         deep: deepValue
       })
     } else {
       vueElement.$watch(key, (newVal, oldVal) => {
-        leafletElement[setMethodName](newVal)
+        if (key === 'visible') {
+          vueElement.setVisible(newVal)
+        } else {
+          leafletElement[setMethodName](newVal)
+        }
       }, {
         deep: deepValue
       })
@@ -82,8 +90,8 @@ export default {
   },
   mounted () {
     this.mapObject = L.gridLayer.googleMutant(this.options)
-    propsBinder(this, this.mapObject, props)
     L.DomEvent.on(this.mapObject, this.$listeners)
+    propsBinder(this, this.mapObject, props)
     this.ready = true
   },
   beforeDestroy () {

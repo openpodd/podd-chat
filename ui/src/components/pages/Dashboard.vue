@@ -3,6 +3,11 @@
     <div class="-left">
       <div class="map-control">Layers
         <input id="googleMap" type="checkbox" v-model="googleMapVisible"><label for="googleMap">Google Map</label>
+        <select id="googleMapLayer" name="googleMapType" v-model="googleMapLayer">
+          <option value="roadmap">roadmap</option>
+          <option value="satellite">satellite</option>
+          <option value="terrain">terrain</option>
+        </select>
         <input id="layerPrediction" type="checkbox" v-model="layerPrediction"><label for="layerPrediction">Prediction</label>
         <input id="layerHotspotall" type="checkbox" v-model="layerHotspotall"><label for="layerHotspotall">Hotspots(All)</label>
         <input id="layerHotspot" type="checkbox" v-model="layerHotspot"><label for="layerHotspot">Hotspots(day)</label>
@@ -115,7 +120,7 @@ export default {
       loading: false,
       authorityGeoJson: '',
       googleApiKey: config.googleMapApiKey,
-      googleMapOptions: {type: 'roadmap'},
+      googleMapLayer: 'roadmap',
       googleMapVisible: true,
       geoJsonOptions: {
         style: function () {
@@ -124,7 +129,7 @@ export default {
             color: '#999',
             opacity: 1,
             fillColor: '#e4ce7f',
-            fillOpacity: 0.4
+            fillOpacity: 0.1
           }
         },
         onEachFeature
@@ -159,6 +164,11 @@ export default {
     }
   },
   computed: {
+    googleMapOptions () {
+      return {
+        type: this.$data.googleMapLayer
+      }
+    },
     mapCenter () {
       if (this.$store.state.user.domain === 7) {
         return [19.90858, 99.8325]
