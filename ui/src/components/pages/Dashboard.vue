@@ -11,6 +11,13 @@
         <input id="layerPrediction" type="checkbox" v-model="layerPrediction"><label for="layerPrediction">Prediction</label>
         <input id="layerHotspotall" type="checkbox" v-model="layerHotspotall"><label for="layerHotspotall">Hotspots(All)</label>
         <input id="layerHotspot" type="checkbox" v-model="layerHotspot"><label for="layerHotspot">Hotspots(day)</label>
+        <label for="filterRange">แสดงผล:</label>
+        <select id="filterRange" name="filterRange" v-model="range" @change="loadData()">
+          <option value="2">2 วัน</option>
+          <option value="5">5 วัน</option>
+          <option value="7">7 วัน</option>
+          <option value="99999">ทั้งหมด</option>
+        </select>
       </div>
       <div id="map-container">
         <v-map :zoom="9" :center="mapCenter">
@@ -113,6 +120,7 @@ export default {
   },
   data: function () {
     return {
+      query: null,
       chatrooms: [],
       winks: [],
       currentRoom: null,
@@ -121,6 +129,7 @@ export default {
       authorityGeoJson: '',
       googleApiKey: config.googleMapApiKey,
       googleMapLayer: 'roadmap',
+      range: 2,
       googleMapVisible: true,
       geoJsonOptions: {
         style: function () {
@@ -192,45 +201,7 @@ export default {
 
   },
   created () {
-    const domainId = this.$store.state.user.domain
-    const ref = this.$firebase.database().ref(domainId).child('rooms')
-    ref.on('child_added', snapshot => {
-      let item = snapshot.val()
-      let id = snapshot.key
-      let room = Object.assign({
-        id: id,
-        visible: true,
-        selected: false
-      }, item)
-      this.chatrooms.push(room)
-      if (this.startMonitorChanged) {
-        this.addWink(room)
-      }
-
-      snapshot.ref.on('value', roomsnap => {
-        let item = roomsnap.val()
-        let key = roomsnap.key
-        if (this.startMonitorChanged) {
-          let room = this.chatrooms.find(r => r.id === key)
-          if (room) {
-            room.done = item.done
-            room.assigned = item.assigned
-            if (!this.currentRoom || this.currentRoom.id !== key) {
-              if (room.lastMessage !== item.lastMessage) {
-                this.addWink(room)
-              }
-            }
-            room.lastMessage = item.lastMessage
-          } else {
-            console.log('Room not found [' + key + ']')
-          }
-        }
-      })
-    })
-    setTimeout(() => {
-      this.startMonitorChanged = true
-    }, 5000)
-
+    this.loadData()
     // loadGeojson
     var endpoint = ''
     if (this.$store.state.user.domain === 1) {
@@ -246,6 +217,59 @@ export default {
     })
   },
   methods: {
+    clearData () {
+      if (this.query) {
+        this.query.off('child_added')
+        this.query.off('child_changed')
+      }
+      this.chatrooms = []
+      this.startMonitorChanged = false
+      setTimeout(() => {
+        this.startMonitorChanged = true
+      }, 5000)
+    },
+    loadData () {
+      this.clearData()
+      const startDate = moment().subtract(this.range, 'days')
+      const ts1 = startDate.unix() * 1000
+      const domainId = this.$store.state.user.domain
+      const ref = this.$firebase.database().ref(domainId).child('rooms')
+      this.query = ref.orderByChild('ts').startAt(ts1)
+      this.query.on('child_added', snapshot => {
+        let item = snapshot.val()
+        let id = snapshot.key
+        let room = Object.assign({
+          id: id,
+          visible: true,
+          selected: false
+        }, item)
+        this.chatrooms.push(room)
+        if (this.startMonitorChanged) {
+          this.addWink(room)
+        }
+      })
+      this.query.on('child_changed', snapshot => {
+        let item = snapshot.val()
+        if (item) {
+          let key = snapshot.key
+          if (this.startMonitorChanged) {
+            let room = this.chatrooms.find(r => r.id === key)
+            if (room) {
+              room.done = item.done
+              room.assigned = item.assigned
+              if (!this.currentRoom || this.currentRoom.id !== key) {
+                if (room.lastMessage !== item.lastMessage) {
+                  this.addWink(room)
+                }
+              }
+              room.lastMessage = item.lastMessage
+            } else {
+              console.log('Room not found [' + key + ']')
+            }
+          }
+        }
+      })
+    },
     addWink (room) {
       let foundRoom = this.winks.find(r => r.id === room.id)
       if (!foundRoom) {
