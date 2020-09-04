@@ -19,7 +19,7 @@
     "utm-latlng": "1.0.5",
     "vue": "^2.3.4",
     "vue-axios": "^2.0.2",
-    "vue-moment": "^2.0.2",
+    "vue-moment": "^4.1.0",
     "vue-router": "^2.7.0",
     "vue2-google-maps": "^0.7.9",
     "vue2-leaflet": "0.0.57",
