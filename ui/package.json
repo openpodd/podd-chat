@@ -11,7 +11,7 @@
     "lint": "eslint --ext .js,.vue src"
   },
   "dependencies": {
-    "axios": "^0.18.1",
+    "axios": "^0.21.1",
     "firebase": "^4.13.1",
     "leaflet": "latest",
     "leaflet.gridlayer.googlemutant": "^0.8.0",
