@@ -15,7 +15,7 @@
     "firebase": "^4.13.1",
     "leaflet": "latest",
     "leaflet.gridlayer.googlemutant": "^0.8.0",
-    "moment": "^2.18.1",
+    "moment": "^2.29.4",
     "utm-latlng": "1.0.5",
     "vue": "^2.3.4",
     "vue-axios": "^2.0.2",
